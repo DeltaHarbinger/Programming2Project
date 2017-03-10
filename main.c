@@ -11,13 +11,6 @@ int closeProgram = 0, numberOfCompanies = 0;
 char companyName[10][30], companyContactName[10][30], companyContactPersonEmail[10][30], customerTypeOfID[10][10];
 char customerName[10][10][30];
 
-void printMenu(){
-    printf("Select Menu Option\n");
-    printf("1.\tPump Gas\n");
-    printf("2.\tEmployee Log In\n");
-    printf("3.\tRegister Company\n");
-    printf("4.\tExit\n");
-}
 
 int * findCustomer(int companyCodeSearch, int customerIDNumberSearch){
     int x = 0, y = 0;
@@ -59,8 +52,12 @@ double getAmountToPump(){
 void pumpGas(){
     int customerInfo[2];
     getCustomerInfo(customerInfo);
+    printf("%d %d\n", customerInfo[0], customerInfo[1]);
     double amountToPump = getAmountToPump();
 }
+
+
+
 ////////////////////////////////////
 //Option 2
 void employeeLogIn(){
