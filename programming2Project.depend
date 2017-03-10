@@ -1,0 +1,9 @@
+# depslib dependency file v1.0
+1489077053 source:c:\users\brandon\google drive\school\classes\programming2\programming2project\main.c
+	<stdio.h>
+	<stdlib.h>
+	<conio.h>
+	<stdbool.h>
+	<string.h>
+	<windows.h>
+
