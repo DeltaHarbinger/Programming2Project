@@ -46,7 +46,6 @@ void getCustomerInfo(int arr[2]){
     scanf(" %i", arr);
     printf("Enter Customer Identification Number\n");
     scanf(" %i", (arr + 1));
-    printf("%i %i\n",arr[0], arr[1] );
 }
 
 double getAmountToPump(){
