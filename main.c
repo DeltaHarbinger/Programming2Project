@@ -145,7 +145,7 @@ int getMenuOption(char menu[][30], int s) {
 	while (test != 8 && test != 13)
 	{
 		system("cls");
-		for (x = 0; x < s; x++) printf("%s%s%s\n", position == x ? "-->" : "  ", menu[x], position == x ? "<--" : "  ");
+		for (x = 0; x < s; x++) printf("%s%s%s\n", position == x ? "-->" : "  ", menu[x], position == x ? "<--" : "");
 		test = ((test = _getch())== -32) ? _getch() : test;
 		(test == 72 && position != 0) ? position-- : false;
 		(test == 80 && position != s - 1) ? position++ : false;
@@ -153,7 +153,7 @@ int getMenuOption(char menu[][30], int s) {
 	return  position + 1;
 }
 
-int main()
+void main()
 {
 	int menuOption = 1;
 	while (menuOption != 4) {
@@ -162,5 +162,4 @@ int main()
 		system("cls");
 		menuFunctions(menuOption);
 	}
-	return 0;
 }
