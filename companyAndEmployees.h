@@ -10,7 +10,7 @@ typedef struct employee{
 
 typedef struct company{
   char companyName[32], companyContactName[32], companyContactPersonEmail[32];
-  int companyCode, companyContactTelephoneNumber;
+  int companyCode, companyContactTelephoneNumber, numberOfCustomers;
   EMPLOYEE employees[employeesPerCompany];
 } COMPANY;
 
