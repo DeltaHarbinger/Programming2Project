@@ -22,6 +22,7 @@ void getInfo(char * message, char * target) {
 	clearScreen();
 }
 
+//Change
 
 //Stores information for a company just created
 void storeCompanyInfo(char companyInfo[][32]) {
