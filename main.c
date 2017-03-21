@@ -17,8 +17,9 @@ void clearScreen(){
 
 
 //Used to get information about the comapny and store in temporary variables to be validated (eg. Company Name)
-void getInfo(char * message, char * target) {
-	printf("%s", message);
+void getInfo(char * message, char * target)
+{
+	printf("%s\n", message);
 	gets(target);
 	clearScreen();
 }
@@ -40,7 +41,8 @@ void incramentNumberOfCompanies() {
 int checkInfo(char infoType[][32], char info[][32], int s){
 	char stringArray[1000] = "";
 	int x;
-	for(x = 0; x < s; x++) {
+	for(x = 0; x < s; x++)
+	{
 		strcat(stringArray, ("%s:", infoType[x]));
 		strcat(stringArray, info[x]);
 		strcat(stringArray, "\n\n");
@@ -50,11 +52,13 @@ int checkInfo(char infoType[][32], char info[][32], int s){
 }
 
 
-int reEnterData(){
+int reEnterData()
+{
 	return displayArrowMenu("Re-enter data?", yesNoOptions, 2);
 }
 
-bool authenticateID(char ID){
+bool authenticateID(char ID)
+{
 	return ID == 'D' || ID =='N' || ID == 'P';
 }
 
@@ -62,7 +66,9 @@ char getIDType(){
 	puts("Enter type of ID\nD - Driver's License\tN - National ID\tP - Passport\t");
 	char id = _getch();
 	id = toupper(id);
-	while(!authenticateID(id)){
+	while(!authenticateID(id))
+	{
+		clearScreen();
 		puts("Please Enter a valid ID type\nD - Driver's License\tN - National ID\tP - Passport\t");
 		id = _getch();
 	}
@@ -71,7 +77,7 @@ char getIDType(){
 
 bool checkCustomerInfo(char * name, char iDType, int IDNumber){
 	char message[1000] = "";
-	sprintf(message, "%s\n%c\n%d\n\n", name, iDType, IDNumber);
+	sprintf(message, "Name\t :\t%s\n\nID Type\t :\t%c\n\nID Number:\t%d\n\n", name, iDType, IDNumber);
 	return displayArrowMenu(message, yesNoOptions, 2) == 1;
 }
 
@@ -90,6 +96,11 @@ void printCustomerData(int customerNumber){
 
 }
 
+bool continueEnteringClients(){
+	char * message = "Continue entering clients?";
+	return displayArrowMenu(message, yesNoOptions, 2) == 1;
+}
+
 void addEmployees(){
 	bool keepEntering = true;
 	company[numberOfCompanies].numberOfCustomers = 0;
@@ -101,24 +112,24 @@ void addEmployees(){
 		int tempIDNumber = (numberOfCompanies + 1) * 1000 + (*numEmployees + 1) * 10;
 
 		checkCustomerInfo(tempCustomerName, tempID, tempIDNumber) ? storeCustomerInfo(numberOfCompanies, *numEmployees, tempCustomerName, tempID, tempIDNumber) : false;
-		printCustomerData(tempIDNumber);
-		system("pause");
+		keepEntering = continueEnteringClients();
 	}
 }
 
-void addCompany(){
+void addCompany()
+{
 	int x, isCorrect = 2, reEnter = 1;
 	char tempCompanyInfo[3][32];
 	char companyInfoName[][32] = {"Company Name\n", "Company Contact Name\n", "Company Contact Email\n"};
 	//Creates a 2D array to show later as a menu
-	while (isCorrect == 2 && reEnter == 1){
-
+	while (isCorrect == 2 && reEnter == 1)
+	{
 		//Gets company info
 		for(x = 0; x < 3; x++) getInfo(companyInfoName[x], tempCompanyInfo[x]);
 		isCorrect = checkInfo(companyInfoName, tempCompanyInfo, sizeof(companyInfoName) / sizeof(companyInfoName[x]));
-		if(isCorrect == 2){
+		if(isCorrect == 2)
+		{
 			reEnter = reEnterData();
-
 		}
 		else {
 			storeCompanyInfo(tempCompanyInfo);
@@ -133,6 +144,7 @@ void addCompany(){
 		incramentNumberOfCompanies();
 	}
 }
+
 /*
 //Option 3
 void addCompany() {
@@ -142,7 +154,6 @@ void addCompany() {
 		int x;
 		for (x = 0; x < 3; x++)
 			getInfo(companyInfo[x]);
-
 		for (x = 0; x < 3; x++)
 			puts(companyInfo[x]);
 		puts("Is this correct?");
@@ -163,7 +174,6 @@ void addCompany() {
 			storeCompanyInfo(companyInfo);
 			companyCode[numberOfCompanies] = (numberOfCompanies + 1) * 1000;
 			incramentNumberOfCompanies();
-
 			char continueEnteringClients = 'y';
 			x = 0;
 			while (continueEnteringClients == 'y' && x < 10) {
@@ -220,7 +230,6 @@ void addCompany() {
 		}
 	}
 	clearScreen();
-
 }
 */
 
