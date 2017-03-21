@@ -142,7 +142,6 @@ void addCompany() {
 		int x;
 		for (x = 0; x < 3; x++)
 			getInfo(companyInfo[x]);
-
 		for (x = 0; x < 3; x++)
 			puts(companyInfo[x]);
 		puts("Is this correct?");
@@ -163,7 +162,6 @@ void addCompany() {
 			storeCompanyInfo(companyInfo);
 			companyCode[numberOfCompanies] = (numberOfCompanies + 1) * 1000;
 			incramentNumberOfCompanies();
-
 			char continueEnteringClients = 'y';
 			x = 0;
 			while (continueEnteringClients == 'y' && x < 10) {
@@ -220,7 +218,6 @@ void addCompany() {
 		}
 	}
 	clearScreen();
-
 }
 */
 
