@@ -96,6 +96,11 @@ void printCustomerData(int customerNumber){
 
 }
 
+bool continueEnteringClients(){
+	char * message = "Continue entering clients?";
+	return displayArrowMenu(message, yesNoOptions, 2) == 1;
+}
+
 void addEmployees(){
 	bool keepEntering = true;
 	company[numberOfCompanies].numberOfCustomers = 0;
@@ -107,8 +112,7 @@ void addEmployees(){
 		int tempIDNumber = (numberOfCompanies + 1) * 1000 + (*numEmployees + 1) * 10;
 
 		checkCustomerInfo(tempCustomerName, tempID, tempIDNumber) ? storeCustomerInfo(numberOfCompanies, *numEmployees, tempCustomerName, tempID, tempIDNumber) : false;
-		printCustomerData(tempIDNumber);
-		system("pause");
+		keepEntering = continueEnteringClients();
 	}
 }
 
@@ -140,6 +144,7 @@ void addCompany()
 		incramentNumberOfCompanies();
 	}
 }
+
 /*
 //Option 3
 void addCompany() {
