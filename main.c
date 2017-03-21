@@ -71,8 +71,7 @@ char getIDType(){
 bool checkCustomerInfo(char * name, char iDType, int IDNumber){
 	char message[1000] = "";
 	sprintf(message, "%s\n%c\n%d\n\n", name, iDType, IDNumber);
-	int option = displayArrowMenu(message, yesNoOptions, 2);
-	return option == 1;
+	return displayArrowMenu(message, yesNoOptions, 2) == 1;
 }
 
 void storeCustomerInfo(int companyNumber, int customerNumber, char name[32], char iDType, int iDNumber){
@@ -85,8 +84,9 @@ void storeCustomerInfo(int companyNumber, int customerNumber, char name[32], cha
 
 void printCustomerData(int customerNumber){
 	int companyNumber = (customerNumber / 1000) - 1;
-	customerNumber = ((customerNumber - (companyNumber * 1000)) / 10) - 1;
+	customerNumber = ((customerNumber - ((companyNumber + 1) * 1000)) / 10) - 1;
 	printf("%s\n", company[companyNumber].employees[customerNumber].customerName);
+
 }
 
 void addCompany(){
@@ -121,7 +121,8 @@ void addCompany(){
 			tempID = getIDType();
 			int tempIDNumber = (numberOfCompanies + 1) * 1000 + (company[numberOfCompanies].numberOfCustomers + 1) * 10;
 			checkCustomerInfo(tempCustomerName, tempID, tempIDNumber) ? storeCustomerInfo(numberOfCompanies, *numEmployees, tempCustomerName, tempID, tempIDNumber) : false;
-			clearScreen();
+			printf("%s\n", company[0].employees[0].customerName);
+			printCustomerData(tempIDNumber);
 		}
 		incramentNumberOfCompanies();
 	}
@@ -238,7 +239,6 @@ void menuFunctions(int menuOption) {
 //Display Menu and get option
 int displayArrowMenu(char * message, char menu[][32], int s) {
 	int position = 0, x, test = 0;
-
 	while (test != 8 && test != 13)
 	{
 		clearScreen();
