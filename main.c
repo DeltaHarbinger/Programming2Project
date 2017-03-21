@@ -1,4 +1,3 @@
-//Hope this works
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>
@@ -11,10 +10,10 @@ COMPANY company[16];
 //Yes no menu options
 char yesNoOptions[][32] = {"Yes", "No"};
 
-void clearScreen(){
+void clearScreen()
+{
 	system("cls");
 }
-
 
 //Used to get information about the comapny and store in temporary variables to be validated (eg. Company Name)
 void getInfo(char * message, char * target)
@@ -24,21 +23,22 @@ void getInfo(char * message, char * target)
 	clearScreen();
 }
 
-
 //Stores information for a company just created
-void storeCompanyInfo(char companyInfo[][32]) {
+void storeCompanyInfo(char companyInfo[][32])
+{
 	strcpy(company[numberOfCompanies].companyName, companyInfo[0]);
 	strcpy(company[numberOfCompanies].companyContactName, companyInfo[1]);
 	strcpy(company[numberOfCompanies].companyContactPersonEmail,companyInfo[2]);
 }
 
 //Incraments number of companies registered
-void incramentNumberOfCompanies() {
+void incramentNumberOfCompanies()
+{
 	numberOfCompanies++;
 }
 
-
-int checkInfo(char infoType[][32], char info[][32], int s){
+int checkInfo(char infoType[][32], char info[][32], int s)
+{
 	char stringArray[1000] = "";
 	int x;
 	for(x = 0; x < s; x++)
@@ -51,7 +51,6 @@ int checkInfo(char infoType[][32], char info[][32], int s){
 	return displayArrowMenu(stringArray, yesNoOptions, 2);
 }
 
-
 int reEnterData()
 {
 	return displayArrowMenu("Re-enter data?", yesNoOptions, 2);
@@ -62,7 +61,8 @@ bool authenticateID(char ID)
 	return ID == 'D' || ID =='N' || ID == 'P';
 }
 
-char getIDType(){
+char getIDType()
+{
 	puts("Enter type of ID\nD - Driver's License\tN - National ID\tP - Passport\t");
 	char id = _getch();
 	id = toupper(id);
@@ -75,13 +75,15 @@ char getIDType(){
 	return id;
 }
 
-bool checkCustomerInfo(char * name, char iDType, int IDNumber){
+bool checkCustomerInfo(char * name, char iDType, int IDNumber)
+{
 	char message[1000] = "";
 	sprintf(message, "Name\t :\t%s\n\nID Type\t :\t%c\n\nID Number:\t%d\n\n", name, iDType, IDNumber);
 	return displayArrowMenu(message, yesNoOptions, 2) == 1;
 }
 
-void storeCustomerInfo(int companyNumber, int customerNumber, char name[32], char iDType, int iDNumber){
+void storeCustomerInfo(int companyNumber, int customerNumber, char name[32], char iDType, int iDNumber)
+{
 	strcpy(company[companyNumber].employees[customerNumber].customerName, name);
 	company[companyNumber].employees[customerNumber].iDType = iDType;
 	company[companyNumber].employees[customerNumber].companyCode = (companyNumber + 1) * 1000;
@@ -89,23 +91,26 @@ void storeCustomerInfo(int companyNumber, int customerNumber, char name[32], cha
 	company[companyNumber].numberOfCustomers++;
 }
 
-void printCustomerData(int customerNumber){
+void printCustomerData(int customerNumber)
+{
 	int companyNumber = (customerNumber / 1000) - 1;
 	customerNumber = ((customerNumber - ((companyNumber + 1) * 1000)) / 10) - 1;
 	printf("%s\n", company[companyNumber].employees[customerNumber].customerName);
-
 }
 
-bool continueEnteringClients(){
+bool continueEnteringClients()
+{
 	char * message = "Continue entering clients?";
 	return displayArrowMenu(message, yesNoOptions, 2) == 1;
 }
 
-void addEmployees(){
+void addEmployees()
+{
 	bool keepEntering = true;
 	company[numberOfCompanies].numberOfCustomers = 0;
 	int * numEmployees = &company[numberOfCompanies].numberOfCustomers;
-	while (keepEntering && company[numberOfCompanies].numberOfCustomers < 32) {
+	while (keepEntering && company[numberOfCompanies].numberOfCustomers < 32)
+	{
 		char tempCustomerName[32], tempID;
 		getInfo("Enter Customer Name", tempCustomerName);
 		tempID = getIDType();
@@ -139,7 +144,8 @@ void addCompany()
 
 	}
 	/////ADD EMPLOYEES
-	if(isCorrect == 1){
+	if(isCorrect == 1)
+	{
 		addEmployees();
 		incramentNumberOfCompanies();
 	}
@@ -235,24 +241,25 @@ void addCompany() {
 
 
 void menuFunctions(int menuOption) {
-	switch (menuOption) {
-	case 1:
-
-		break;
-	case 2:
-		break;
-	case 3:
-		addCompany();
-		break;
-	case 4:
-		break;
-	default:
-		printf("Enter a valid option\n");
+	switch (menuOption)
+	{
+		case 1:
+			break;
+		case 2:
+			break;
+		case 3:
+			addCompany();
+			break;
+		case 4:
+			break;
+		default:
+			printf("Enter a valid option\n");
 	}
 }
 
 //Display Menu and get option
-int displayArrowMenu(char * message, char menu[][32], int s) {
+int displayArrowMenu(char * message, char menu[][32], int s)
+{
 	int position = 0, x, test = 0;
 	while (test != 8 && test != 13)
 	{
@@ -277,4 +284,3 @@ void main()
 		menuFunctions(menuOption);
 	}
 }
-
