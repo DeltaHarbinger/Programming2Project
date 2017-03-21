@@ -29,6 +29,7 @@ void storeCompanyInfo(char companyInfo[][32]) {
 	strcpy(company[numberOfCompanies].companyContactName, companyInfo[1]);
 	strcpy(company[numberOfCompanies].companyContactPersonEmail,companyInfo[2]);
 }
+//Change
 
 //Incraments number of companies registered
 void incramentNumberOfCompanies() {
