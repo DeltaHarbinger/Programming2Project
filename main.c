@@ -1,3 +1,4 @@
+//Hope this works
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>
@@ -89,6 +90,22 @@ void printCustomerData(int customerNumber){
 
 }
 
+void addEmployees(){
+	bool keepEntering = true;
+	company[numberOfCompanies].numberOfCustomers = 0;
+	int * numEmployees = &company[numberOfCompanies].numberOfCustomers;
+	while (keepEntering && company[numberOfCompanies].numberOfCustomers < 32) {
+		char tempCustomerName[32], tempID;
+		getInfo("Enter Customer Name", tempCustomerName);
+		tempID = getIDType();
+		int tempIDNumber = (numberOfCompanies + 1) * 1000 + (*numEmployees + 1) * 10;
+
+		checkCustomerInfo(tempCustomerName, tempID, tempIDNumber) ? storeCustomerInfo(numberOfCompanies, *numEmployees, tempCustomerName, tempID, tempIDNumber) : false;
+		printCustomerData(tempIDNumber);
+		system("pause");
+	}
+}
+
 void addCompany(){
 	int x, isCorrect = 2, reEnter = 1;
 	char tempCompanyInfo[3][32];
@@ -112,18 +129,7 @@ void addCompany(){
 	}
 	/////ADD EMPLOYEES
 	if(isCorrect == 1){
-		bool keepEntering = true;
-		company[numberOfCompanies].numberOfCustomers = 0;
-		int * numEmployees = &company[numberOfCompanies].numberOfCustomers;
-		while (keepEntering && company[numberOfCompanies].numberOfCustomers < 32) {
-			char tempCustomerName[32], tempID;
-			getInfo("Enter Customer Name", tempCustomerName);
-			tempID = getIDType();
-			int tempIDNumber = (numberOfCompanies + 1) * 1000 + (company[numberOfCompanies].numberOfCustomers + 1) * 10;
-			checkCustomerInfo(tempCustomerName, tempID, tempIDNumber) ? storeCustomerInfo(numberOfCompanies, *numEmployees, tempCustomerName, tempID, tempIDNumber) : false;
-			printf("%s\n", company[0].employees[0].customerName);
-			printCustomerData(tempIDNumber);
-		}
+		addEmployees();
 		incramentNumberOfCompanies();
 	}
 }
