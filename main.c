@@ -14,6 +14,13 @@ void clearScreen()
 {
 	system("cls");
 }
+//Purchase Function
+void Purchase()
+{
+	char opts[][32]={"87","90", "Diesel"};
+	int chosen=	displayArrowMenu("Select Gas Type:", opts,3 );
+
+}
 
 //Used to get information about the comapny and store in temporary variables to be validated (eg. Company Name)
 void getInfo(char * message, char * target)
@@ -244,6 +251,7 @@ void menuFunctions(int menuOption) {
 	switch (menuOption)
 	{
 		case 1:
+		Purchase();
 			break;
 		case 2:
 			break;
