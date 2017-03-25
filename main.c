@@ -14,6 +14,13 @@ COMPANY company[16];
 //Yes no menu options
 char yesNoOptions[][32] = {"Yes", "No"};
 
+//Option 1
+void purchase()
+{
+	char opts[][32]={"87","90", "Diesel"};
+	int chosen=	displayArrowMenu("Select Gas Type:", opts,3 );
+
+}
 
 
 void clearScreen()
@@ -299,6 +306,7 @@ void menuFunctions(int menuOption) {
 	switch (menuOption)
 	{
 		case 1:
+			purchase();
 			break;
 		case 2:
 			break;
