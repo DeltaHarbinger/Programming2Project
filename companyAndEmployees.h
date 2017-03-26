@@ -9,11 +9,20 @@ typedef struct employee{
 } EMPLOYEE;
 
 typedef struct company{
-  char companyName[32], companyContactName[32], companyContactPersonEmail[32];
-  int companyCode, companyContactTelephoneNumber, numberOfCustomers;
+  char companyName[32], companyContactTelephoneNumber[32], companyContactName[32], companyContactPersonEmail[32];
+  int companyCode, numberOfCustomers;
   EMPLOYEE employees[employeesPerCompany];
 } COMPANY;
 
-typedef struct stationEmployee{
-  char employeeUsername[64], employeePassword[64];
-} STATIONEMPLOYEE;
+
+//Job Numbers,
+typedef struct eagleEmployee{
+  int eagleEmployeeNumber, eagleJobNumber;
+  char eagleEmployeeName[32], eagleUserName[32], eaglePassword[32];
+} EAGLEEMPLOYEE;
+
+typedef struct purchase{
+  int saleIDNumber, stationNumber, companyCode, customerIDNumber;
+  int gasType, pumpNumber, eightDigitSaleDate, employeeID;
+  float gallonsOfPetrol, costPerGallon, costOfSale;
+} PURCHASE;
