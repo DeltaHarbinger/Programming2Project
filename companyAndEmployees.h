@@ -5,7 +5,7 @@ int totalNumberOfCompanies = 32;
 
 typedef struct employee{
   char customerName[32], iDType;
-  int companyCode, customerIDNumber;
+  int customerIDNumber;
 } EMPLOYEE;
 
 typedef struct company{
@@ -14,7 +14,15 @@ typedef struct company{
   EMPLOYEE employees[employeesPerCompany];
 } COMPANY;
 
+
+//Job Numbers,
 typedef struct eagleEmployee{
   int eagleEmployeeNumber, eagleJobNumber;
   char eagleEmployeeName[32], eagleUserName[32], eaglePassword[32];
 } EAGLEEMPLOYEE;
+
+typedef struct purchase{
+  int saleIDNumber, stationNumber, companyCode, customerIDNumber;
+  int gasType, pumpNumber, eightDigitSaleDate, employeeID;
+  float gallonsOfPetrol, costPerGallon, costOfSale;
+} PURCHASE;

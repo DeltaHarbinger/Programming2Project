@@ -7,7 +7,6 @@
 #include "companyAndEmployees.h"
 
 
-
 COMPANY company[16];
 
 
@@ -61,15 +60,13 @@ void incramentNumberOfCompanies()
 
 int checkInfo(char infoType[][32], char info[][32], int s)
 {
-	char stringArray[1000] = "";
+	char stringArray[576] = "";
 	int x;
 	for(x = 0; x < s; x++)
 	{
-		strcat(stringArray, ("%s:", infoType[x]));
-		strcat(stringArray, info[x]);
-		strcat(stringArray, "\n\n");
+		sprintf(stringArray, "%s%s%s\n\n", stringArray, infoType[x], info[x]);
 	}
-	strcat(stringArray, "\nIs this okay?");
+	strcat(stringArray, "\n\nIs this okay?");
 	return displayArrowMenu(stringArray, yesNoOptions, sizeof(yesNoOptions) / sizeof(yesNoOptions[0]));
 }
 
@@ -104,22 +101,24 @@ char getIDType()
 
 
 
-bool checkCustomerInfo(char * name, char iDType, int IDNumber)
+bool checkCustomerInfo(EMPLOYEE source)
 {
 	char message[1000] = "";
-	sprintf(message, "Name\t :\t%s\n\nID Type\t :\t%c\n\nID Number:\t%d\n\n", name, iDType, IDNumber);
+	sprintf(message, "Name\t :\t%s\n\nID Type\t :\t%c\n\nID Number:\t%d\n\n", source.customerName, source.iDType, source.customerIDNumber);
 	return displayArrowMenu(message, yesNoOptions, sizeof(yesNoOptions) / sizeof(yesNoOptions[0])) == 1;
 }
 
 
 
-void storeCustomerInfo(int companyNumber, int customerNumber, char name[32], char iDType, int iDNumber)
+void storeCustomerInfo(EMPLOYEE * dest, EMPLOYEE source)
 {
-	strcpy(company[companyNumber].employees[customerNumber].customerName, name);
+	*dest = source;
+	/*strcpy(company[companyNumber].employees[customerNumber].customerName, name);
 	company[companyNumber].employees[customerNumber].iDType = iDType;
 	company[companyNumber].employees[customerNumber].companyCode = (companyNumber + 1) * 1000;
 	company[companyNumber].employees[customerNumber].customerIDNumber = company[companyNumber].employees[customerNumber].companyCode + (customerNumber + 1) * 10;
 	company[companyNumber].numberOfCustomers++;
+	*/
 }
 
 void displayAllCustomerInfo(int companyCode)
@@ -165,12 +164,15 @@ void addEmployees()
 	while (keepEntering && company[numberOfCompanies].numberOfCustomers < 32)
 	{
 		clearScreen();
-		char tempCustomerName[32], tempID;
-		getInfo("Enter Customer Name", tempCustomerName);
-		tempID = getIDType();
-		int tempIDNumber = (numberOfCompanies + 1) * 1000 + (*numEmployees + 1) * 10;
+		EMPLOYEE tempEmployee;
+		getInfo("Enter Customer Name", tempEmployee.customerName);
+		tempEmployee.iDType = getIDType();
+		tempEmployee.customerIDNumber = (numberOfCompanies + 1) * 1000 + (*numEmployees + 1) * 10;
 
-		checkCustomerInfo(tempCustomerName, tempID, tempIDNumber) ? storeCustomerInfo(numberOfCompanies, *numEmployees, tempCustomerName, tempID, tempIDNumber) : false;
+		if(checkCustomerInfo(tempEmployee)){
+			storeCustomerInfo(&company[numberOfCompanies].employees[*numEmployees], tempEmployee);
+			company[numberOfCompanies].numberOfCustomers++;
+		}
 		keepEntering = continueEnteringClients();
 	}
 }
