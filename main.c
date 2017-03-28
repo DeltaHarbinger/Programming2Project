@@ -64,6 +64,9 @@ int checkInfo(char infoType[][32], char info[][32], int s)
 	int x;
 	for(x = 0; x < s; x++)
 	{
+
+
+		//Construct array using a certain format. In this case, the format includes three strings ALL STORED in the variable stringArray
 		sprintf(stringArray, "%s%s%s\n\n", stringArray, infoType[x], info[x]);
 	}
 	strcat(stringArray, "\n\nIs this okay?");
