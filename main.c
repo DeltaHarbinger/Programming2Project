@@ -6,10 +6,7 @@
 #include <windows.h>
 #include "companyAndEmployees.h"
 
-
-
 COMPANY company[16];
-
 
 //Yes no menu options
 char yesNoOptions[][32] = {"Yes", "No"};
@@ -17,18 +14,27 @@ char yesNoOptions[][32] = {"Yes", "No"};
 //Option 1
 void purchase()
 {
-	char opts[][32]={"87","90", "Diesel"};
+	//int choice;
+	char opts[][32]={"87 gasoline","90 gasoline", "Diesel"};
 	int chosen=	displayArrowMenu("Select Gas Type:", opts,3 );
-
+	//choice = displayArrowMenu
+	switch (chosen)
+	{
+		case 1:
+			puts("Hey!!\n");
+			system ("pause");
+			break;
+		case 2:
+			break;
+		case 3:
+			break;
+	}
 }
-
 
 void clearScreen()
 {
 	system("cls");
 }
-
-
 
 //Used to get information about the comapny and store in temporary variables to be validated (eg. Company Name)
 void getInfo(char * message, char * target)
@@ -37,8 +43,6 @@ void getInfo(char * message, char * target)
 	gets(target);
 	clearScreen();
 }
-
-
 
 //Stores information for a company just created
 void storeCompanyInfo(char companyInfo[][32])
@@ -49,15 +53,11 @@ void storeCompanyInfo(char companyInfo[][32])
 	strcpy(company[numberOfCompanies].companyContactTelephoneNumber, companyInfo[3]);
 }
 
-
-
 //Incraments number of companies registered
 void incramentNumberOfCompanies()
 {
 	numberOfCompanies++;
 }
-
-
 
 int checkInfo(char infoType[][32], char info[][32], int s)
 {
@@ -73,21 +73,15 @@ int checkInfo(char infoType[][32], char info[][32], int s)
 	return displayArrowMenu(stringArray, yesNoOptions, sizeof(yesNoOptions) / sizeof(yesNoOptions[0]));
 }
 
-
-
 int reEnterData()
 {
 	return displayArrowMenu("Re-enter data?", yesNoOptions, sizeof(yesNoOptions) / sizeof(yesNoOptions[0]));
 }
 
-
-
 bool authenticateID(char ID)
 {
 	return ID == 'D' || ID =='N' || ID == 'P';
 }
-
-
 
 char getIDType()
 {
@@ -102,16 +96,12 @@ char getIDType()
 	return id;
 }
 
-
-
 bool checkCustomerInfo(char * name, char iDType, int IDNumber)
 {
 	char message[1000] = "";
 	sprintf(message, "Name\t :\t%s\n\nID Type\t :\t%c\n\nID Number:\t%d\n\n", name, iDType, IDNumber);
 	return displayArrowMenu(message, yesNoOptions, sizeof(yesNoOptions) / sizeof(yesNoOptions[0])) == 1;
 }
-
-
 
 void storeCustomerInfo(int companyNumber, int customerNumber, char name[32], char iDType, int iDNumber)
 {
@@ -147,15 +137,11 @@ void printCustomerData(int customerNumber)
 	printf("%s\n", company[companyNumber].employees[customerNumber].customerName);
 }
 
-
-
 bool continueEnteringClients()
 {
 	char * message = "Continue entering clients?";
 	return displayArrowMenu(message, yesNoOptions, sizeof(yesNoOptions) / sizeof(yesNoOptions[0])) == 1;
 }
-
-
 
 void addEmployees()
 {
@@ -174,8 +160,6 @@ void addEmployees()
 		keepEntering = continueEnteringClients();
 	}
 }
-
-
 
 void addCompany()
 {
@@ -301,12 +285,11 @@ void addCompany() {
 }
 */
 
-
 void menuFunctions(int menuOption) {
 	switch (menuOption)
 	{
 		case 1:
-			purchase();
+			purchase(menuOption);
 			break;
 		case 2:
 			break;
@@ -317,8 +300,6 @@ void menuFunctions(int menuOption) {
 			break;
 	}
 }
-
-
 
 //Display Menu and get option
 int displayArrowMenu(char * message, char menu[][32], int s)
