@@ -1,7 +1,9 @@
 #define employeesPerCompany 32
 
+int numberOfEagleEmployees = 0;
 int numberOfCompanies = 0;
 int totalNumberOfCompanies = 32;
+typedef enum jobType {MANAGER = 1, CASHIER = 2, PUMP_ATTENDANT = 3} eagleJobType;
 
 typedef struct employee{
   char customerName[32], iDType;
@@ -17,7 +19,8 @@ typedef struct company{
 
 //Job Numbers,
 typedef struct eagleEmployee{
-  int eagleEmployeeNumber, eagleJobNumber;
+  int eagleEmployeeNumber;
+  eagleJobType jobType;
   char eagleEmployeeName[32], eagleUserName[32], eaglePassword[32];
 } EAGLEEMPLOYEE;
 
