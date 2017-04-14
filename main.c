@@ -6,22 +6,43 @@
 #include <windows.h>
 #include "companyAndEmployees.h"
 
+
 COMPANY company[16];
+
+EAGLEEMPLOYEE eagleEmployees[32];
+
 //Yes no menu options
 char yesNoOptions[][32] = {"Yes", "No"};
+
+
+//Option 1
+void purchase()
+{
+	char opts[][32] = {"87","90", "Diesel"};
+	//Used sizeof instead of constant '3'
+	int chosen =	displayArrowMenu("Select Gas Type:", opts, sizeof(opts) / sizeof(opts[0]));
+
+
+}
+
 
 void clearScreen()
 {
 	system("cls");
 }
 
+
+
 //Used to get information about the comapny and store in temporary variables to be validated (eg. Company Name)
 void getInfo(char * message, char * target)
 {
-	printf("%s\n", message);
+	clearScreen();
+	puts(message);
 	gets(target);
 	clearScreen();
 }
+
+
 
 //Stores information for a company just created
 void storeCompanyInfo(char companyInfo[][32])
@@ -29,7 +50,10 @@ void storeCompanyInfo(char companyInfo[][32])
 	strcpy(company[numberOfCompanies].companyName, companyInfo[0]);
 	strcpy(company[numberOfCompanies].companyContactName, companyInfo[1]);
 	strcpy(company[numberOfCompanies].companyContactPersonEmail,companyInfo[2]);
+	strcpy(company[numberOfCompanies].companyContactTelephoneNumber, companyInfo[3]);
 }
+
+
 
 //Incraments number of companies registered
 void incramentNumberOfCompanies()
@@ -37,58 +61,86 @@ void incramentNumberOfCompanies()
 	numberOfCompanies++;
 }
 
+
+
 int checkInfo(char infoType[][32], char info[][32], int s)
 {
-	char stringArray[1000] = "";
+	char stringArray[576] = "";
 	int x;
 	for(x = 0; x < s; x++)
-	{
-		strcat(stringArray, ("%s:", infoType[x]));
-		strcat(stringArray, info[x]);
-		strcat(stringArray, "\n\n");
-	}
-	strcat(stringArray, "\nIs this okay?");
-	return displayArrowMenu(stringArray, yesNoOptions, 2);
+		//Construct array using a certain format. In this case, the format includes three strings ALL STORED in the variable stringArray
+		sprintf(stringArray, "%s%s%s\n\n", stringArray, infoType[x], info[x]);
+	//Appends "Is this okay?" to the message
+	strcat(stringArray, "\n\nIs this okay?");
+	//Returns 1 or 2 from "Yes" or "No" menu
+	return displayArrowMenu(stringArray, yesNoOptions, sizeof(yesNoOptions) / sizeof(yesNoOptions[0]));
 }
+
+
 
 int reEnterData()
 {
-	return displayArrowMenu("Re-enter data?", yesNoOptions, 2);
+	//In the case of incorrectly entered data, this menu may be used
+	return displayArrowMenu("Re-enter data?", yesNoOptions, sizeof(yesNoOptions) / sizeof(yesNoOptions[0]));
 }
+
+
 
 bool authenticateID(char ID)
 {
+	//Authenticates the ID Type of a customer. This ID should be represented as 'D', 'N' or 'P'
 	return ID == 'D' || ID =='N' || ID == 'P';
 }
 
+
+
 char getIDType()
 {
+	//Tells user to enter the type of ID the customer is to use
 	puts("Enter type of ID\nD - Driver's License\tN - National ID\tP - Passport\t");
-	char id = _getch();
-	id = toupper(id);
+	char id = toupper(_getch());
+	//Ensures ID is 'D', 'N', or 'P'
 	while(!authenticateID(id))
 	{
 		clearScreen();
 		puts("Please Enter a valid ID type\nD - Driver's License\tN - National ID\tP - Passport\t");
-		id = _getch();
+		id = toupper(_getch());
 	}
+	//Returns valid ID
 	return id;
 }
 
-bool checkCustomerInfo(char * name, char iDType, int IDNumber)
+
+
+bool checkCustomerInfo(EMPLOYEE source)
 {
 	char message[1000] = "";
-	sprintf(message, "Name\t :\t%s\n\nID Type\t :\t%c\n\nID Number:\t%d\n\n", name, iDType, IDNumber);
-	return displayArrowMenu(message, yesNoOptions, 2) == 1;
+	sprintf(message, "Name\t :\t%s\n\nID Type\t :\t%c\n\nID Number:\t%d\n\n", source.customerName, source.iDType, source.customerIDNumber);
+	return displayArrowMenu(message, yesNoOptions, sizeof(yesNoOptions) / sizeof(yesNoOptions[0])) == 1;
 }
 
-void storeCustomerInfo(int companyNumber, int customerNumber, char name[32], char iDType, int iDNumber)
+
+
+void storeCustomerInfo(EMPLOYEE * dest, EMPLOYEE source)
 {
-	strcpy(company[companyNumber].employees[customerNumber].customerName, name);
-	company[companyNumber].employees[customerNumber].iDType = iDType;
-	company[companyNumber].employees[customerNumber].companyCode = (companyNumber + 1) * 1000;
-	company[companyNumber].employees[customerNumber].customerIDNumber = company[companyNumber].employees[customerNumber].companyCode + (customerNumber + 1) * 10;
-	company[companyNumber].numberOfCustomers++;
+	*dest = source;
+	company[numberOfCompanies].numberOfCustomers++;
+}
+
+void displayAllCustomerInfo(int companyCode)
+{
+	int x;
+	printf("\nID Type\t\tID Number\tName\n\n");
+	for (x = 0; x < company[companyCode].numberOfCustomers; x++)	printf("%c\t\t%i\t\t%s\n", company[companyCode].employees[x].iDType, company[companyCode].employees[x].customerIDNumber, company[companyCode].employees[x].customerName);
+}
+
+void displayRegisteredCustomers(int companyCode)
+{
+	companyCode = (companyCode / 1000) - 1;
+	clearScreen();
+	printf("The Following Employees have been registeed for %s\n", company[companyCode].companyName);
+	displayAllCustomerInfo(companyCode);
+	system("pause");
 }
 
 void printCustomerData(int customerNumber)
@@ -98,11 +150,15 @@ void printCustomerData(int customerNumber)
 	printf("%s\n", company[companyNumber].employees[customerNumber].customerName);
 }
 
+
+
 bool continueEnteringClients()
 {
 	char * message = "Continue entering clients?";
-	return displayArrowMenu(message, yesNoOptions, 2) == 1;
+	return displayArrowMenu(message, yesNoOptions, sizeof(yesNoOptions) / sizeof(yesNoOptions[0])) == 1;
 }
+
+
 
 void addEmployees()
 {
@@ -111,32 +167,35 @@ void addEmployees()
 	int * numEmployees = &company[numberOfCompanies].numberOfCustomers;
 	while (keepEntering && company[numberOfCompanies].numberOfCustomers < 32)
 	{
-		char tempCustomerName[32], tempID;
-		getInfo("Enter Customer Name", tempCustomerName);
-		tempID = getIDType();
-		int tempIDNumber = (numberOfCompanies + 1) * 1000 + (*numEmployees + 1) * 10;
+		clearScreen();
+		EMPLOYEE tempEmployee;
 
-		checkCustomerInfo(tempCustomerName, tempID, tempIDNumber) ? storeCustomerInfo(numberOfCompanies, *numEmployees, tempCustomerName, tempID, tempIDNumber) : false;
+		getInfo("Enter Customer Name", tempEmployee.customerName);
+		tempEmployee.iDType = getIDType();
+		tempEmployee.customerIDNumber = (numberOfCompanies + 1) * 1000 + (*numEmployees + 1) * 10;
+
+		checkCustomerInfo(tempEmployee) ? storeCustomerInfo(&company[numberOfCompanies].employees[*numEmployees], tempEmployee) : false;
 		keepEntering = continueEnteringClients();
 	}
 }
 
+
+//Option 3
 void addCompany()
 {
 	int x, isCorrect = 2, reEnter = 1;
-	char tempCompanyInfo[3][32];
-	char companyInfoName[][32] = {"Company Name\n", "Company Contact Name\n", "Company Contact Email\n"};
+	char tempCompanyInfo[4][32];
+	char companyInfoName[][32] = {"Company Name\n", "Company Contact Name\n", "Company Contact Email\n", "Company Contact Number\n"};
 	//Creates a 2D array to show later as a menu
 	while (isCorrect == 2 && reEnter == 1)
 	{
 		//Gets company info
-		for(x = 0; x < 3; x++) getInfo(companyInfoName[x], tempCompanyInfo[x]);
+		for(x = 0; x < 4; x++) getInfo(companyInfoName[x], tempCompanyInfo[x]);
 		isCorrect = checkInfo(companyInfoName, tempCompanyInfo, sizeof(companyInfoName) / sizeof(companyInfoName[x]));
 		if(isCorrect == 2)
-		{
 			reEnter = reEnterData();
-		}
-		else {
+		else
+		{
 			storeCompanyInfo(tempCompanyInfo);
 			company[numberOfCompanies].companyCode = (numberOfCompanies + 1) * 1000;
 			clearScreen();
@@ -147,103 +206,149 @@ void addCompany()
 	if(isCorrect == 1)
 	{
 		addEmployees();
-		incramentNumberOfCompanies();
-	}
-}
-
-/*
-//Option 3
-void addCompany() {
-	char isCorrect = 'n', reEnter = 'y';
-	while (isCorrect == 'n' && reEnter == 'y') {
-		char companyInfo[3][30] = { "Company Name\n", "Company Contact Name\n", "Company Contact Email\n" };
-		int x;
-		for (x = 0; x < 3; x++)
-			getInfo(companyInfo[x]);
-		for (x = 0; x < 3; x++)
-			puts(companyInfo[x]);
-		puts("Is this correct?");
-		isCorrect = _getch();
-		while (isCorrect != 'y' && isCorrect != 'n') {
-			printf("\nPlease enter y or n");
-			isCorrect = _getch();
-		}
-		if (isCorrect == 'n') {
-			printf("\nWould you like to enter the data again?\n");
-			reEnter = _getch();
-			while (reEnter != 'y' && reEnter != 'n') {
-				printf("\nPlease enter y or n\n");
-				reEnter = _getch();
-			}
-		}
-		else {
-			storeCompanyInfo(companyInfo);
-			companyCode[numberOfCompanies] = (numberOfCompanies + 1) * 1000;
+		if(company[numberOfCompanies].numberOfCustomers > 0)
+		{
+			displayRegisteredCustomers(company[numberOfCompanies].companyCode);
 			incramentNumberOfCompanies();
-			char continueEnteringClients = 'y';
-			x = 0;
-			while (continueEnteringClients == 'y' && x < 10) {
-				clearScreen();
-				char tempcustomerName[30];
-				char iDType;
-				printf("Enter the Customer's Name\n");
-				scanf(" %s", tempcustomerName);
-				printf("\nEnter the type of ID the customer will use (P - Passport, N - National ID, D - Driver's License)\n");
-				iDType = _getch();
-				iDType = toupper(iDType);
-				printf("\n%s\n%c\nIs this correct? (y/n)\n", tempcustomerName, iDType);
-				char correct =_getch();
-				while (correct != 'y' && correct != 'n') {
-					printf("\nPlease enter a valid option\n\n%s\n%c\nIs this correct? (y/n)\n", tempcustomerName, iDType);
-					correct =_getch();
-				}
-				if (correct == 'y') {
-					strcpy(customerName[numberOfCompanies - 1][x], tempcustomerName);
-					customerIDNumber[numberOfCompanies - 1][x] = companyCode[numberOfCompanies - 1] + ((x + 1) * 60);
-					customerTypeOfID[numberOfCompanies - 1][x] = iDType;
-					x++;
-					printf("%s\n", customerName[numberOfCompanies - 1][x - 1]);
-					printf("Would you like to continue entering clients? (y/n)");
-					continueEnteringClients =_getch();
-					while (continueEnteringClients != 'y' && continueEnteringClients != 'n') {
-						printf("Would you like to continue entering clients? (y/n)");
-						continueEnteringClients =_getch();
-					}
-				}
-				else {
-					printf("Would you like to re-enter the information? (y/n)\n");
-					reEnter =_getch();
-					while (reEnter != 'y' && reEnter != 'n') {
-						printf("Please enter a valid option\nWould you like to re-enter the information?(y/n)\n");
-						reEnter =_getch();
-					}
-					if (reEnter != 'y') {
-						printf("\nContinue entering clients?\n");
-						continueEnteringClients =_getch();
-						while (continueEnteringClients != 'y' && continueEnteringClients != 'n') {
-							printf("Please enter a valid response.\nStop entering clients?\n");
-							continueEnteringClients =_getch();
-						}
-					}
-				}
-			}
-			int z;
-			clearScreen();
-			for (z = 0; z < x; z++)
-				printf("\n%s\t%c", customerName[numberOfCompanies - 1][z], customerTypeOfID[numberOfCompanies - 1][z]);
-			printf("\nThese employees have been registered\n");
-			system("pause");
 		}
 	}
-	clearScreen();
 }
-*/
 
+//Option 4 (during exit)
+void fileWrite()
+{
+	FILE * fp;
+	fp = fopen("companyData.dat", "wb");
+	int x;
+	for(x = 0; x < numberOfCompanies; x++)
+	{
+		int y;
+		fwrite(&company[x], sizeof(COMPANY), 1, fp);
+	}
+	fclose(fp);
+}
 
-void menuFunctions(int menuOption) {
+//Reads all data from file
+void fileRead()
+{
+
+	int x = 0;
+	if(fopen("companyData.dat", "rb")){
+		FILE * fp;
+		fp = fopen("companyData.dat", "rb");
+		while(!feof(fp)){
+			fread(&company[numberOfCompanies], sizeof(COMPANY), 1, fp);
+			numberOfCompanies++;
+		}
+		numberOfCompanies--;
+		fclose(fp);
+	}
+
+}
+
+bool confirmEagleAccount(EAGLEEMPLOYEE employee)
+{
+	char message[256];
+	char jobType[16];
+	if(employee.jobType == 1)
+	{
+		strcpy(jobType, "Admin");
+	}
+	else
+	{
+		if(employee.jobType == 2)
+		{
+			strcpy(jobType, "Cashier");
+		}
+		else
+		{
+			strcpy(jobType, "Pump Attendant");
+		}
+	}
+
+	sprintf(message, "Name:\t%s\n\nUserName:\t%s\n\nJob Type:\t%s\n\nIs this okay?", employee.eagleEmployeeName, employee.eagleUserName, jobType);
+	return displayArrowMenu(message, yesNoOptions, sizeof(yesNoOptions) / sizeof(yesNoOptions[0])) == 1;
+}
+
+bool authenticatePassword(char * a, char * b)
+{
+	return strcmp(a, b) == 0;
+}
+
+void createEagleAccount(int jobType)
+{
+	EAGLEEMPLOYEE temp;
+	temp.jobType = jobType;
+	getInfo("Enter Employee Name (Max 31 Characters)", temp.eagleEmployeeName);
+	getInfo("Enter Employee Username (Max 31 Characters)", temp.eagleUserName);
+	getInfo("Enter Employee Password (Max 31 Characters)", temp.eaglePassword);
+	char tempPassword[32];
+	getInfo("Re-enter Employee Password", tempPassword);
+	if(strcmp(tempPassword, temp.eaglePassword) == 0)
+	{
+		puts("okay");
+		if(confirmEagleAccount(temp))
+		{
+			eagleEmployees[numberOfEagleEmployees] = temp;
+			numberOfEagleEmployees++;
+		}
+	}
+}
+
+bool AccountExists()
+{
+	return fopen("eagleEmployees.dat", "rb");
+}
+
+void getEagleEmployeeData()
+{
+	if(!AccountExists())
+	{
+		printf("No employee data has been created.\nAn administrator account will have to be created before the system is used.");
+		Sleep(5000);
+		while(numberOfEagleEmployees < 1)
+			createEagleAccount(1);
+	}
+	else
+	{
+		FILE * fp;
+		fp = fopen("eagleEmployees.dat", "rb");
+		while(!feof(fp))
+		{
+			fread(&eagleEmployees[numberOfEagleEmployees], sizeof(eagleEmployees), 1, fp);
+			numberOfEagleEmployees++;
+		}
+		fclose(fp);
+	}
+}
+
+void writeEagleEmployeeData()
+{
+	FILE * fp;
+	fp = fopen("eagleEmployees.dat", "wb");
+	int x;
+	for(x = 0; x < numberOfEagleEmployees; x++)
+	{
+		fwrite(&eagleEmployees[x], sizeof(EAGLEEMPLOYEE), 1, fp);
+	}
+}
+
+//Debugging option 5
+void printAllData()
+{
+	int x, y;
+	for(x = 0; x < numberOfCompanies; x++)
+	{
+		displayRegisteredCustomers(company[x].companyCode);
+	}
+}
+
+void fullMenuFunctions(int menuOption)
+{
 	switch (menuOption)
 	{
 		case 1:
+			purchase();
 			break;
 		case 2:
 			break;
@@ -251,9 +356,11 @@ void menuFunctions(int menuOption) {
 			addCompany();
 			break;
 		case 4:
+			fileWrite();
+			writeEagleEmployeeData();
 			break;
-		default:
-			printf("Enter a valid option\n");
+		case 5:
+			printAllData();
 	}
 }
 
@@ -261,26 +368,33 @@ void menuFunctions(int menuOption) {
 int displayArrowMenu(char * message, char menu[][32], int s)
 {
 	int position = 0, x, test = 0;
-	while (test != 8 && test != 13)
+	while (test != 13)
 	{
 		clearScreen();
 		puts(message);
-		for (x = 0; x < s; x++) printf("%s%s%s\n", position == x ? "-->" : "  ", menu[x], position == x ? "<--" : "");
-		test = ((test = _getch())== -32) ? _getch() : test;
+		for (x = 0; x < s; x++)	printf("%s%s%s\n", position == x ? "-->" : "  ", menu[x], position == x ? "<--" : "");
+		test = ((test = _getch()) == -32) ? _getch() : test;
 		(test == 72 && position != 0) ? position-- : false;
 		(test == 80 && position != s - 1) ? position++ : false;
+
 	}
 	return  position + 1;
 }
 
+
+
 void main()
 {
+	//Reads all data from file at startup
+	getEagleEmployeeData();
+	fileRead();
 	int menuOption = 1;
-	char message[] = "Enter an option";
-	while (menuOption != 4) {
-		char options[][32] = { "Pump Gas", "Employee Login", "Register Company", "Exit"};
+	char * message = "Enter an option";
+	while (menuOption != 4)
+	{
+		char options[][32] = { "Pump Gas", "Employee Login", "Register Company", "Save and Exit", "Print All Data"};
 		menuOption = displayArrowMenu(message, options, sizeof(options) / sizeof(options[0]));
 		clearScreen();
-		menuFunctions(menuOption);
+		fullMenuFunctions(menuOption);
 	}
 }
