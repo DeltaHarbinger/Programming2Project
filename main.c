@@ -143,6 +143,8 @@ void displayRegisteredCustomers(int companyCode)
 	system("pause");
 }
 
+
+
 void printCustomerData(int customerNumber)
 {
 	int companyNumber = (customerNumber / 1000) - 1;
