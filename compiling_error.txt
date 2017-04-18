@@ -1,0 +1,8 @@
+C:\Users\Phillip\Documents\Programming2ProjectPull\Programming2Project\main.c: In function 'purchaseProcessing':
+C:\Users\Phillip\Documents\Programming2ProjectPull\Programming2Project\main.c:22:15: error: 'purchase' undeclared (first use in this function)
+   scanf("%i",&purchase.);
+               ^
+C:\Users\Phillip\Documents\Programming2ProjectPull\Programming2Project\main.c:22:15: note: each undeclared identifier is reported only once for each function it appears in
+C:\Users\Phillip\Documents\Programming2ProjectPull\Programming2Project\main.c:22:24: error: expected identifier before ')' token
+   scanf("%i",&purchase.);
+                        ^
