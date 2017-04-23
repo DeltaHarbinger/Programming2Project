@@ -5,7 +5,8 @@
 #include <string.h>
 #include <windows.h>
 #include "companyAndEmployees.h"
-
+#include <time.h>
+#include <math.h>
 
 COMPANY company[16];
 
@@ -102,6 +103,7 @@ char getIDType()
 	//Tells user to enter the type of ID the customer is to use
 	puts("Enter type of ID\nD - Driver's License\tN - National ID\tP - Passport\t");
 	char id = toupper(_getch());
+	printf("%c\n", id);
 	//Ensures ID is 'D', 'N', or 'P'
 	while(!authenticateID(id))
 	{
@@ -122,10 +124,27 @@ bool checkCustomerInfo(EMPLOYEE source)
 	return displayArrowMenu(message, yesNoOptions, sizeof(yesNoOptions) / sizeof(yesNoOptions[0])) == 1;
 }
 
+bool idTaken(int iD)
+{
+	int x;
+	bool taken = false;
+	while(!taken && x < company[numberOfCompanies].numberOfCustomers)
+		iD == company[numberOfCompanies].employees[x].personalIDNumber ? taken = true : x++;
+	return taken;
+}
 
+int getPersonalIDNumber()
+{
+	int personalID;
+	do
+		personalID = (numberOfCompanies + 1) * 10000 + rand() % 1000;
+	while(idTaken(personalID));
+	return personalID;
+}
 
 void storeCustomerInfo(EMPLOYEE * dest, EMPLOYEE source)
 {
+
 	*dest = source;
 	company[numberOfCompanies].numberOfCustomers++;
 }
@@ -133,8 +152,8 @@ void storeCustomerInfo(EMPLOYEE * dest, EMPLOYEE source)
 void displayAllCustomerInfo(int companyCode)
 {
 	int x;
-	printf("\nID Type\t\tID Number\tName\n\n");
-	for (x = 0; x < company[companyCode].numberOfCustomers; x++)	printf("%c\t\t%i\t\t%s\n", company[companyCode].employees[x].iDType, company[companyCode].employees[x].customerIDNumber, company[companyCode].employees[x].customerName);
+	printf("\nID Type\t\tID Number\tPersonal ID\tName\n\n");
+	for (x = 0; x < company[companyCode].numberOfCustomers; x++)	printf("%c\t\t%i\t\t%i\t%s\n", company[companyCode].employees[x].iDType, company[companyCode].employees[x].customerIDNumber, company[companyCode].employees[x].personalIDNumber, company[companyCode].employees[x].customerName);
 }
 
 void displayRegisteredCustomers(int companyCode)
@@ -152,7 +171,7 @@ void printCustomerData(int customerNumber)
 {
 	int companyNumber = (customerNumber / 1000) - 1;
 	int customerPositionNumber = ((customerNumber - ((companyNumber + 1) * 1000)) / 10) - 1;
-	(companyNumber >= 0 && (companyNumber + 1) * 1000 + (customerPositionNumber + 1) * 10 == customerNumber && companyNumber < numberOfCompanies && customerPositionNumber < company[companyNumber].numberOfCustomers) ? printf("Company Name\n%s\n\nCompany Code\n%i\n\nCustomer Name\n%s\n\nCustomer ID Number\n%i\n", company[companyNumber].companyName, eagleEmployees[activeAccount].jobType == PUMP_ATTENDANT ? 0 : company[companyNumber].companyCode, company[companyNumber].employees[customerPositionNumber].customerName, company[companyNumber].employees[customerPositionNumber].customerIDNumber) : printf("Invalid Customer Number\n" );
+	(companyNumber >= 0 && (companyNumber + 1) * 1000 + (customerPositionNumber + 1) * 10 == customerNumber && companyNumber < numberOfCompanies && customerPositionNumber < company[companyNumber].numberOfCustomers) ? printf("Company Name\n%s\n\nCompany Code\n%i\n\nCustomer Name\n%s\n\nCustomer ID Number\n%i\n", company[companyNumber].companyName, eagleEmployees[activeAccount].jobType == PUMP_ATTENDANT ? 0 : company[companyNumber].companyCode , company[companyNumber].employees[customerPositionNumber].customerName, company[companyNumber].employees[customerPositionNumber].customerIDNumber) : printf("Invalid Customer Number\n" );
 }
 
 void printCompanyData(int companyNumber)
@@ -182,7 +201,7 @@ void addEmployees()
 		getInfo("Enter Customer Name", tempEmployee.customerName);
 		tempEmployee.iDType = getIDType();
 		tempEmployee.customerIDNumber = (numberOfCompanies + 1) * 1000 + (*numEmployees + 1) * 10;
-
+		tempEmployee.personalIDNumber = getPersonalIDNumber();
 		checkCustomerInfo(tempEmployee) ? storeCustomerInfo(&company[numberOfCompanies].employees[*numEmployees], tempEmployee) : false;
 		keepEntering = continueEnteringClients();
 	}
@@ -242,10 +261,12 @@ void fileRead()
 {
 
 	int x = 0;
-	if(fopen("companyData.dat", "rb")){
+	if(fopen("companyData.dat", "rb"))
+	{
 		FILE * fp;
 		fp = fopen("companyData.dat", "rb");
-		while(!feof(fp)){
+		while(!feof(fp))
+		{
 			fread(&company[numberOfCompanies], sizeof(COMPANY), 1, fp);
 			numberOfCompanies++;
 		}
@@ -275,7 +296,7 @@ bool confirmEagleAccount(EAGLEEMPLOYEE employee)
 		}
 	}
 
-	sprintf(message, "Name:\t%s\n\nUserName:\t%s\n\nJob Type:\t%s\n\nIs this okay?", employee.eagleEmployeeName, employee.eagleUserName, jobType);
+	sprintf(message, "Name:\t%s\n\nUserName:\t%s\n\nJob Type:\t%s\n\nBranch Number:\t%i\n\nIs this okay?", employee.eagleEmployeeName, employee.eagleUserName, jobType, employee.branchNumber);
 	return displayArrowMenu(message, yesNoOptions, sizeof(yesNoOptions) / sizeof(yesNoOptions[0])) == 1;
 }
 
@@ -293,6 +314,8 @@ void createEagleAccount(int jobType)
 	getInfo("Enter Employee Password (Max 31 Characters)", temp.eaglePassword);
 	char tempPassword[32];
 	getInfo("Re-enter Employee Password", tempPassword);
+	printf("Enter Branch Number\n");
+	scanf("%i", &temp.branchNumber);
 	if(strcmp(tempPassword, temp.eaglePassword) == 0)
 	{
 		if(confirmEagleAccount(temp))
@@ -436,22 +459,33 @@ int searchAccount(char accountInfo[2][32])
 bool login()
 {
 	char credentials[2][32];
-	printf("Enter Your UserName:");
-	gets(credentials[0]);
-	printf("Enter Your Password:");
-	gets(credentials[1]);
-	int workingAccount = searchAccount(credentials);
-	system("cls");
-	if(workingAccount != -1){
-		activeAccount = workingAccount;
-		return true;
+	int attempts = 0;
+	while(attempts < 3)
+	{
+		printf("Enter Your UserName:");
+		do
+			gets(credentials[0]);
+		while(strcmp(credentials[0], "") == 0);
+		printf("Enter Your Password:");
+		do
+			gets(credentials[1]);
+		while (strcmp(credentials[1], "") == 0);
+		int workingAccount = searchAccount(credentials);
+		system("cls");
+		if(workingAccount != -1)
+		{
+			activeAccount = workingAccount;
+			return true;
+		}
+		attempts++;
+		printf("Failed login attempt (%i)\n", attempts);
 	}
 	return false;
 }
 
 void displayManagerMenu()
 {
-	int menuOption = 1;
+	int menuOption = 0;
 	char * message = "Enter an option";
 	while (menuOption != 2)
 	{
@@ -509,12 +543,13 @@ void displayEmployeeMenu()
 void main()
 {
 	//Reads all data from file at startup
+	srand(time(NULL));
 	getEagleEmployeeData();
 	fileRead();
 	if(login())
 	{
 		displayEmployeeMenu();
 	} else {
-		puts("This Account does not exist");
+		puts("Incorrect login information has been entered more than three times.\nThe system will now be closed.");
 	}
 }
