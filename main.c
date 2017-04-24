@@ -5,108 +5,85 @@
 #include <string.h>
 #include <windows.h>
 #include "companyAndEmployees.h"
-<<<<<<< HEAD
-
-// for (x=0;x<numberOfCompanies;x++)
-// {
-// 	for(y=0;y<company[x].numberOfCustomers;y++)
-// }
-scanf (the comanpy code )//accepts the user comany code
-comanycode /1000-1//thie is to know where in the company array we should go
-for (x=0;x<company[code].numberOfCustomers;x++)//this is to loop throught the array to go where the comany code is
-	if (idnum==copmanyy[code].employee[x].personalidnumber)//this is to check if the id number submitted exists at where the copany code
-
-=======
 #include <time.h>
 #include <math.h>
->>>>>>> edc66a312e589784a009805d8a9b0b6b1fde9da7
 
 COMPANY company[16];
-
 EAGLEEMPLOYEE eagleEmployees[32];
 int activeAccount;
-
 //Yes no menu options
 char yesNoOptions[][32] = {"Yes", "No"};
-//
-// void eightygas()
-// {
-//
-// }
-// void ninetygas()
-// {
-//
-// }
-// void diesel()
-// 	{
-//
-// 	}
-void gasMessage()
-	{
-		int amt;
-		puts("Enter the amount of gas in litres:\n");
-		scanf("%d", &amt);
-		displayArrowMenu("Is This correct?", yesNoOptions, sizeof(yesNoOptions) / sizeof(yesNoOptions[0]));
-	}
-	//THIS DOESNT WORK YET
-void purchase()
-{
-	char opts[][32] = {"87","90", "Diesel"};
-	//Used sizeof instead of constant '3'
-	int chosen =	displayArrowMenu("Select Gas Type:", opts, sizeof(opts) / sizeof(opts[0]));
-	switch(chosen)
-	{
-		case 1:
-			eightygas();
-			break;
-		case 2:
-			ninetygas();
-			break;
-		case 3:
-			diesel();
-			break;
-	}
-}
-
-void idCheck()
-{
-	int cidnum;
-	FILE * fPtr;
-	PURCHASE x;
-	EMPLOYEE p;
-	clearScreen();
-	puts("Enter customer personal identification number:\n");
-	scanf("%d", &cidnum);//STILL NEED TO ASK THE USER TO ENTER THEIR COMPANY CODE AND CHECK IF IT BELONGS TO THAT ID NUMBER
-	fPtr=fopen("companyData.dat","rb");
-	if((fPtr=fopen("companyData.dat","rb")) ==NULL)
-	{
-		puts("File cannot be accessed!");
-		system("pause");
-	}
-	else
-	{
-		fread (&p,sizeof(struct employee),1,fPtr);
-		while (!feof (fPtr))
-		{
-			if (p.customerIDNumber == cidnum)//HAVE YO CHECK THE EMPLOYEE STRUCT TO SEE IF SOMEONE HAS THAT ID
-			{
-				purchase();
-				x.customerIDNumber=cidnum;//WRITING THE ID NUMBER BELONGNG TO THE PURCAHSE TO THE  PURCHASE STRUCT
-			}
-			else{
-				puts(" NOT FOUND!");//THIS KEEPS BEING SPAMMED TO THE SCREEN
-			}
-		}
-	}
-}
-//Option 1
 
 void clearScreen()
 {
 	system("cls");
 }
 
+float gasMessage()
+{
+	float amt;
+	puts("How much dollars worth:\n");
+	scanf("%f", &amt);
+	displayArrowMenu("Is This correct?", yesNoOptions, sizeof(yesNoOptions) / sizeof(yesNoOptions[0]));
+	return amt;
+}
 
+float ppLitre(int line)
+{
+	FILE *ptr;
+	float value,am,litres;
+	int i;
+
+	am=gasMessage();
+	//printf("%.2f",am);
+	ptr=fopen("Priceperlitre.txt", "r");
+	//fread()
+	value =0.0;
+	for(i=0;i<line;i++)
+	{
+		fscanf(ptr, "%f\n", &value);
+	}
+	litres= am/value;
+	printf("Amount of litres is : %.2f\n",litres);
+	getch();
+	fclose(ptr);
+}
+
+//Option 1
+void purchase()
+{
+	char opts[][32] = {"  87","  90", "  Diesel"};
+	//Used sizeof instead of constant '3'
+	clearScreen();
+	int chosen= displayArrowMenu("Select Gas Type:", opts, sizeof(opts) / sizeof(opts[0]));
+	switch(chosen)
+	{
+		case 1:
+			ppLitre(chosen);
+			break;
+		case 2:
+			ppLitre(chosen);
+			break;
+		case 3:
+			ppLitre(chosen);
+			break;
+	}
+}
+
+void codeCheck()
+{
+	int code,pID,x;
+	clearScreen();
+	puts("Enter Company Code:\n"); scanf("%d", &code);
+	puts("Enter Personal IDNumber:"); scanf("%d", &pID);
+	code=code/1000-1;
+	for (x=0;x<company[code].companyCode;x++)
+			if (pID==company[code].employees[x].personalIDNumber)
+					purchase();
+	clearScreen();
+	puts("\n\n\n\n\n\t\t\t\tID Number not found!");
+	getch();
+}
 
 //Used to get information about the comapny and store in temporary variables to be validated (eg. Company Name)
 void getInfo(char * message, char * target)
@@ -118,8 +95,6 @@ void getInfo(char * message, char * target)
 		gets(target);
 	clearScreen();
 }
-
-
 
 //Stores information for a company just created
 void storeCompanyInfo(char companyInfo[][32])
@@ -437,6 +412,22 @@ void writeEagleEmployeeData()
 		fwrite(&eagleEmployees[x], sizeof(EAGLEEMPLOYEE), 1, fp);
 }
 
+void updateppl()
+{
+	FILE *uPtr;
+	float price;
+	int i;
+
+	uPtr=fopen("Priceperlitre.txt","w");
+	puts("Enter price for 87 ,90,diesel:");
+	for(i=0;i<3;i++)
+	{
+		scanf("%f", &price);
+		fprintf(uPtr, "%f\n",price);
+	}
+	fclose(uPtr);
+}
+
 void getEagleEmployeeData()
 {
 	if(!AccountExists())
@@ -484,7 +475,7 @@ void fullMenuFunctions(int menuOption)
 	switch (menuOption)
 	{
 		case 1:
-			idCheck();
+			codeCheck();
 			break;
 		case 2:
 			fileWrite();
@@ -501,6 +492,9 @@ void fullMenuFunctions(int menuOption)
 			break;
 		case 6:
 			createNewEagleAccount();
+			break;
+		case 7:
+			updateppl();
 			break;
 	}
 }
@@ -559,10 +553,10 @@ bool login()
 void displayManagerMenu()
 {
 	int menuOption = 0;
-	char * message = "Enter an option";
+	char * message = "Select an option:";
 	while (menuOption != 2)
 	{
-		char options[][32] = { "Pump Gas", "Save and Exit", "Search Information", "Register Company", "Print All Data", "Create New Eagle Employee"};
+		char options[][32] = { "Pump Gas", "Save and Exit", "Search Information", "Register Company", "Print All Data", "Create New Eagle Employee","Update price per litre"};
 		menuOption = displayArrowMenu(message, options, sizeof(options) / sizeof(options[0]));
 		clearScreen();
 		fullMenuFunctions(menuOption);
