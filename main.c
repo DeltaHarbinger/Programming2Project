@@ -6,6 +6,15 @@
 #include <windows.h>
 #include "companyAndEmployees.h"
 
+// for (x=0;x<numberOfCompanies;x++)
+// {
+// 	for(y=0;y<company[x].numberOfCustomers;y++)
+// }
+scanf (the comanpy code )//accepts the user comany code
+comanycode /1000-1//thie is to know where in the company array we should go
+for (x=0;x<company[code].numberOfCustomers;x++)//this is to loop throught the array to go where the comany code is
+	if (idnum==copmanyy[code].employee[x].personalidnumber)//this is to check if the id number submitted exists at where the copany code
+
 
 COMPANY company[16];
 
@@ -13,18 +22,78 @@ EAGLEEMPLOYEE eagleEmployees[32];
 
 //Yes no menu options
 char yesNoOptions[][32] = {"Yes", "No"};
-
-
-//Option 1
+//
+// void eightygas()
+// {
+//
+// }
+// void ninetygas()
+// {
+//
+// }
+// void diesel()
+// 	{
+//
+// 	}
+void gasMessage()
+	{
+		int amt;
+		puts("Enter the amount of gas in litres:\n");
+		scanf("%d", &amt);
+		displayArrowMenu("Is This correct?", yesNoOptions, sizeof(yesNoOptions) / sizeof(yesNoOptions[0]));
+	}
+	//THIS DOESNT WORK YET
 void purchase()
 {
 	char opts[][32] = {"87","90", "Diesel"};
 	//Used sizeof instead of constant '3'
 	int chosen =	displayArrowMenu("Select Gas Type:", opts, sizeof(opts) / sizeof(opts[0]));
-
-
+	switch(chosen)
+	{
+		case 1:
+			eightygas();
+			break;
+		case 2:
+			ninetygas();
+			break;
+		case 3:
+			diesel();
+			break;
+	}
 }
 
+void idCheck()
+{
+	int cidnum;
+	FILE * fPtr;
+	PURCHASE x;
+	EMPLOYEE p;
+	clearScreen();
+	puts("Enter customer personal identification number:\n");
+	scanf("%d", &cidnum);//STILL NEED TO ASK THE USER TO ENTER THEIR COMPANY CODE AND CHECK IF IT BELONGS TO THAT ID NUMBER
+	fPtr=fopen("companyData.dat","rb");
+	if((fPtr=fopen("companyData.dat","rb")) ==NULL)
+	{
+		puts("File cannot be accessed!");
+		system("pause");
+	}
+	else
+	{
+		fread (&p,sizeof(struct employee),1,fPtr);
+		while (!feof (fPtr))
+		{
+			if (p.customerIDNumber == cidnum)//HAVE YO CHECK THE EMPLOYEE STRUCT TO SEE IF SOMEONE HAS THAT ID
+			{
+				purchase();
+				x.customerIDNumber=cidnum;//WRITING THE ID NUMBER BELONGNG TO THE PURCAHSE TO THE  PURCHASE STRUCT
+			}
+			else{
+				puts(" NOT FOUND!");//THIS KEEPS BEING SPAMMED TO THE SCREEN
+			}
+		}
+	}
+}
+//Option 1
 
 void clearScreen()
 {
@@ -350,7 +419,7 @@ void fullMenuFunctions(int menuOption)
 	switch (menuOption)
 	{
 		case 1:
-			purchase();
+			idCheck();
 			break;
 		case 2:
 			break;
