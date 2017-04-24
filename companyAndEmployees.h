@@ -7,7 +7,7 @@ typedef enum jobType {MANAGER = 1, CASHIER = 2, PUMP_ATTENDANT = 3} eagleJobType
 
 typedef struct employee{
   char customerName[32], iDType;
-  int customerIDNumber;
+  int customerIDNumber, personalIDNumber;
 } EMPLOYEE;
 
 typedef struct company{
@@ -19,7 +19,7 @@ typedef struct company{
 
 //Job Numbers,
 typedef struct eagleEmployee{
-  int eagleEmployeeNumber;
+  int eagleEmployeeNumber, branchNumber;
   eagleJobType jobType;
   char eagleEmployeeName[32], eagleUserName[32], eaglePassword[32];
 } EAGLEEMPLOYEE;
