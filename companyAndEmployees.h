@@ -3,6 +3,7 @@
 int numberOfEagleEmployees = 0;
 int numberOfCompanies = 0;
 int totalNumberOfCompanies = 32;
+
 typedef enum jobType {MANAGER = 1, CASHIER = 2, PUMP_ATTENDANT = 3} eagleJobType;
 
 typedef struct employee{

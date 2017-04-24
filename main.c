@@ -16,23 +16,78 @@ int activeAccount;
 //Yes no menu options
 char yesNoOptions[][32] = {"Yes", "No"};
 
-
-//Option 1
-void purchase()
-{
-	char opts[][32] = {"87","90", "Diesel"};
-	//Used sizeof instead of constant '3'
-	int chosen =	displayArrowMenu("Select Gas Type:", opts, sizeof(opts) / sizeof(opts[0]));
-
-
-}
-
-
 void clearScreen()
 {
 	system("cls");
 }
 
+
+//Option 1
+float gasMessage()
+{
+	float amt;
+	puts("How much dollars worth:\n");
+	scanf("%f", &amt);
+	displayArrowMenu("Is This correct?", yesNoOptions, sizeof(yesNoOptions) / sizeof(yesNoOptions[0]));
+	return amt;
+}
+
+float ppLitre(int line)
+{
+	FILE *ptr;
+	float value,am,litres;
+	int i;
+
+	am=gasMessage();
+	//printf("%.2f",am);
+	ptr=fopen("Priceperlitre.txt", "r");
+	//fread()
+	value =0.0;
+	for(i=0;i<line;i++)
+	{
+		fscanf(ptr, "%f\n", &value);
+	}
+	litres= am/value;
+	printf("Amount of litres is : %.2f\n",litres);
+	getch();
+	fclose(ptr);
+}
+
+//Option 1
+void purchase()
+{
+	char opts[][32] = {"  87","  90", "  Diesel"};
+	//Used sizeof instead of constant '3'
+	clearScreen();
+	int chosen= displayArrowMenu("Select Gas Type:", opts, sizeof(opts) / sizeof(opts[0]));
+	switch(chosen)
+	{
+		case 1:
+			ppLitre(chosen);
+			break;
+		case 2:
+			ppLitre(chosen);
+			break;
+		case 3:
+			ppLitre(chosen);
+			break;
+	}
+}
+
+void pumpGas()
+{
+	int code,pID,x;
+	clearScreen();
+	puts("Enter Company Code:\n"); scanf("%d", &code);
+	puts("Enter Personal IDNumber:"); scanf("%d", &pID);
+	code=code/1000-1;
+	for (x=0;x<company[code].companyCode;x++)
+			if (pID==company[code].employees[x].personalIDNumber)
+					purchase();
+	clearScreen();
+	puts("\n\n\n\n\n\t\t\t\tID Number not found!");
+	getch();
+}
 
 
 //Used to get information about the comapny and store in temporary variables to be validated (eg. Company Name)
@@ -406,12 +461,96 @@ void createNewEagleAccount()
 	char * message = "Choose the account type";
 	createEagleAccount(displayArrowMenu(message, accountTypes, sizeof(accountTypes) / sizeof(accountTypes[0])));
 }
+
+void updateCompanyInfo(int companyCode)
+{
+	companyCode = (companyCode / 1000) - 1;
+	char options[][32] = {"New Company Name", "New Contact Name", "New Contact Number", "New Contact Email"};
+	int toUpdate = displayArrowMenu("Choose the appropriate option", options, sizeof(options) / sizeof(options[0]));
+	switch (toUpdate)
+	{
+		case 1:
+			getInfo(options[toUpdate - 1], company[companyCode].companyName);
+			break;
+		case 2:
+			getInfo(options[toUpdate - 1], company[companyCode].companyContactName);
+			break;
+		case 3:
+			getInfo(options[toUpdate - 1], company[companyCode].companyContactTelephoneNumber);
+			break;
+		case 4:
+			getInfo(options[toUpdate - 1], company[companyCode].companyContactPersonEmail);
+			break;
+	}
+}
+
+void updateCustomerInfoType(int companyCode, int customerIDNumber)
+{
+	char options[][32] = {"New Customer Name", "New Customer ID"};
+	int toUpdate = displayArrowMenu("Chose the appropriate option", options, sizeof(options) / sizeof(options[0]));
+	switch (toUpdate) {
+		case 1:
+			getInfo(options[toUpdate - 1], company[companyCode].employees[customerIDNumber].customerName);
+			break;
+		case 2:
+			company[companyCode].employees[customerIDNumber].iDType = getIDType();
+			break;
+	}
+}
+
+void updateCustomerInfo(int companyCode)
+{
+	int x;
+	companyCode = (companyCode / 1000) - 1;
+	char options[company[companyCode].numberOfCustomers][32];
+	for (x = 0; x < company[companyCode].numberOfCustomers; x++)	sprintf(options[x], "%i\t%i", company[companyCode].employees[x].customerIDNumber, company[companyCode].employees[x].personalIDNumber);
+	int toUpdate = displayArrowMenu("Choose the customer to be updated", options, sizeof(options) / sizeof(options[0]));
+	updateCustomerInfoType(companyCode, toUpdate - 1);
+}
+
+void updateInfo()
+{
+	char options[][32] = {"Company Info", "Customer Info"};
+	int toUpdate = displayArrowMenu("Choose the type of field to update", options, sizeof(options) / sizeof(options[0]));
+	int updateQuerry;
+	printf("Enter companyCode\n");
+	fflush(stdin);
+	scanf("%i", &updateQuerry);
+	if(updateQuerry % 1000 == 0 && (updateQuerry / 1000) <= numberOfCompanies && (updateQuerry / 1000) > 0)
+		switch(toUpdate)
+		{
+			case 1:
+				updateCompanyInfo(updateQuerry);
+			case 2:
+				updateCustomerInfo(updateQuerry);
+		}
+	else
+		printf("Invalid company code\n");
+		system("pause");
+}
+
+void updatePricePerLitre()
+{
+	FILE *uPtr;
+	float price;
+	int i;
+
+	uPtr=fopen("Priceperlitre.txt","w");
+	puts("Enter price for 87 ,90,diesel:");
+	for(i=0;i<3;i++)
+	{
+		scanf("%f", &price);
+		fprintf(uPtr, "%f\n",price);
+	}
+	fclose(uPtr);
+}
+
 void fullMenuFunctions(int menuOption)
 {
 	switch (menuOption)
 	{
 		case 1:
-			purchase();
+			pumpGas();
 			break;
 		case 2:
 			fileWrite();
@@ -429,6 +568,10 @@ void fullMenuFunctions(int menuOption)
 		case 6:
 			createNewEagleAccount();
 			break;
+		case 7:
+			updateInfo();
+		case 8:
+			updatePricePerLitre();
 	}
 }
 
@@ -489,7 +632,7 @@ void displayManagerMenu()
 	char * message = "Enter an option";
 	while (menuOption != 2)
 	{
-		char options[][32] = { "Pump Gas", "Save and Exit", "Search Information", "Register Company", "Print All Data", "Create New Eagle Employee"};
+		char options[][32] = { "Pump Gas", "Save and Exit", "Search Information", "Register Company", "Print All Data", "Create New Eagle Employee", "Update Company/Customer Info", "Update Price Per Litre"};
 		menuOption = displayArrowMenu(message, options, sizeof(options) / sizeof(options[0]));
 		clearScreen();
 		fullMenuFunctions(menuOption);
