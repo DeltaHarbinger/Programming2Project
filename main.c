@@ -21,74 +21,136 @@ void clearScreen()
 	system("cls");
 }
 
-
-//Option 1
-float gasMessage()
+void receipt(PURCHASE * temp)
 {
-	float amt;
-	puts("How much dollars worth:\n");
-	scanf("%f", &amt);
-	displayArrowMenu("Is This correct?", yesNoOptions, sizeof(yesNoOptions) / sizeof(yesNoOptions[0]));
-	return amt;
-}
-
-float ppLitre(int line)
-{
-	FILE *ptr;
-	float value,am,litres;
-	int i;
-
-	am=gasMessage();
-	//printf("%.2f",am);
-	ptr=fopen("Priceperlitre.txt", "r");
-	//fread()
-	value =0.0;
-	for(i=0;i<line;i++)
-	{
-		fscanf(ptr, "%f\n", &value);
-	}
-	litres= am/value;
-	printf("Amount of litres is : %.2f\n",litres);
-	getch();
-	fclose(ptr);
+    int i;
+    char types[3][32] = { "87", "90", "Diesel" };
+    char gas;
+    COMPANY tab;
+    clearScreen();
+		printf("Sale ID %i\n", (*temp).saleIDNumber);
+    printf("\n\t\t\t\tEAGLE ENERGY LTD\n");
+    printf("\n\t\tCompany ID\t  Litres\t  Cost($)\t  Gas Type\n\n\n");
+    printf("\n\t\t%d\t\t%.2f\t\t%.2f\t\t%s", (*temp).companyCode, (*temp).litresOfPetrol , (*temp).costOfSale, types[(*temp).gasType - 1]);
+    printf("\n\n\n\t\t\t\tThank you!");
+    printf("\n\t\t\t\tHave a Nice day\n");
+    getch();
 }
 
 //Option 1
-void purchase()
+float gasMessage(PURCHASE * temp)
 {
-	char opts[][32] = {"  87","  90", "  Diesel"};
-	//Used sizeof instead of constant '3'
-	clearScreen();
-	int chosen= displayArrowMenu("Select Gas Type:", opts, sizeof(opts) / sizeof(opts[0]));
-	switch(chosen)
-	{
-		case 1:
-			ppLitre(chosen);
-			break;
-		case 2:
-			ppLitre(chosen);
-			break;
-		case 3:
-			ppLitre(chosen);
-			break;
-	}
+  float amt;
+  bool confirm = false;
+  do
+  {
+    clearScreen();
+    puts("How much dollars worth:\n");
+    scanf("%f", &amt);
+		char message[30];
+		sprintf(message, "Is this correct?\n %f", amt);
+    confirm = displayArrowMenu(message, yesNoOptions, sizeof(yesNoOptions) / sizeof(yesNoOptions[0])) == 1;
+  } while(confirm == false);
+  return amt;
 }
 
+int getSaleIDNumber()
+{
+	PURCHASE temp;
+	int saleID = 1;
+	if(fopen("purchaseData.dat", "rb"))
+	{
+		FILE * fp;
+		fp = fopen("purchaseData.dat", "rb");
+		while(!feof(fp))
+		{
+			fread(&temp, sizeof(PURCHASE), 1, fp);
+			saleID++;
+		}
+		saleID--;
+		fclose(fp);
+	}
+	return saleID;
+}
+
+void ppLitre(int line, PURCHASE * temp)
+{
+  FILE *ptr;
+  float value,amount,litres;
+  int i;
+  (*temp).costOfSale = gasMessage(temp);
+  //printf("%.2f",am);
+  ptr=fopen("Priceperlitre.txt", "r");
+  //fread()
+  value = 0.0;
+  for(i=0;i<line;i++)
+  {
+      fscanf(ptr, "%f\n", &(*temp).costPerLitre);
+  }
+  (*temp).litresOfPetrol= (*temp).costOfSale / (*temp).costPerLitre;
+  printf("Amount of litres is : %.2f\n", (*temp).litresOfPetrol);
+  system("pause");
+  fclose(ptr);
+	(*temp).saleIDNumber = getSaleIDNumber();
+	receipt(temp);
+}
+
+//Option 1
+void purchase(PURCHASE * temp)
+{
+
+    char opts[][32] = {"  87","  90", "  Diesel"};
+    //Used sizeof instead of constant '3'
+    clearScreen();
+    ppLitre((*temp).gasType = displayArrowMenu("Select Gas Type:", opts, sizeof(opts) / sizeof(opts[0])), temp);
+}
+
+void storePurchase(PURCHASE purchaseToStore)
+{
+	FILE * fp;
+  if(!fopen("purchaseData.dat", "rb"))
+  	fp = fopen("purchaseData.dat", "wb");
+	else
+		fp = fopen("purchaseData.dat", "ab");
+	fwrite(&purchaseToStore, sizeof(PURCHASE), 1, fp);
+	fclose(fp);
+}
+
+//ID Number:\t%d\n\n"
 void pumpGas()
 {
-	int code,pID,x;
-	clearScreen();
-	puts("Enter Company Code:\n"); scanf("%d", &code);
-	puts("Enter Personal IDNumber:"); scanf("%d", &pID);
-	code=code/1000-1;
-	for (x=0;x<company[code].companyCode;x++)
-			if (pID==company[code].employees[x].personalIDNumber)
-					purchase();
-	clearScreen();
-	puts("\n\n\n\n\n\t\t\t\tID Number not found!");
-	getch();
+  PURCHASE temp;
+  int code,pID,x;
+  clearScreen();
+  puts("Enter Company Code:\n"); scanf(" %d", &temp.companyCode);
+  puts("Enter Personal IDNumber:"); scanf(" %d", &temp.customerIDNumber);
+  code = (temp.companyCode / 1000) - 1;
+	bool pumped = false;
+	if((code + 1) * 1000 == temp.companyCode)
+	  for (x = 0; x < company[code].numberOfCustomers; x++)
+		{
+			if (temp.customerIDNumber == company[code].employees[x].personalIDNumber)
+			{
+				purchase(&temp);
+				pumped = true;
+				storePurchase(temp);
+				company[code].employees[x].numberOfPurchases++;
+			}
+			else
+				if (!pumped && x == company[code].numberOfCustomers - 1 && temp.customerIDNumber != company[code].employees[x].personalIDNumber)
+				{
+					system("cls");
+					puts("\n\n\n\n\n\t\t\t\tID Number not found!\n");
+					system("pause");
+				}
+		}
+	else
+	{
+		printf("Inalid Company Code\n");
+		system("pause");
+	}
+  clearScreen();
 }
-
 
 //Used to get information about the comapny and store in temporary variables to be validated (eg. Company Name)
 void getInfo(char * message, char * target)
@@ -257,6 +319,7 @@ void addEmployees()
 		tempEmployee.iDType = getIDType();
 		tempEmployee.customerIDNumber = (numberOfCompanies + 1) * 1000 + (*numEmployees + 1) * 10;
 		tempEmployee.personalIDNumber = getPersonalIDNumber();
+		tempEmployee.numberOfPurchases = 0;
 		checkCustomerInfo(tempEmployee) ? storeCustomerInfo(&company[numberOfCompanies].employees[*numEmployees], tempEmployee) : false;
 		keepEntering = continueEnteringClients();
 	}
@@ -419,29 +482,46 @@ void writeEagleEmployeeData()
 		fwrite(&eagleEmployees[x], sizeof(EAGLEEMPLOYEE), 1, fp);
 }
 
+void updatePricePerLitre()
+{
+	FILE *uPtr;
+	float price;
+	int i;
+
+	uPtr=fopen("Priceperlitre.txt","w");
+	puts("Enter price for 87 ,90,diesel:");
+	for(i=0;i<3;i++)
+	{
+		scanf("%f", &price);
+		fprintf(uPtr, "%f\n",price);
+	}
+	fclose(uPtr);
+}
+
 void getEagleEmployeeData()
 {
 	if(!AccountExists())
-	{
-		printf("No employee data has been created.\nAn administrator account will have to be created before the system is used.");
-		Sleep(5000);
-		while(numberOfEagleEmployees < 1)
-			createEagleAccount(MANAGER);
-		writeEagleEmployeeData();
-		system("cls");
+  {
+  	printf("No employee data has been created.\nAn administrator account will have to be created before the system is used.");
+    Sleep(5000);
+    while(numberOfEagleEmployees < 1)
+        createEagleAccount(MANAGER);
+    writeEagleEmployeeData();
+    clearScreen();
+    updatePricePerLitre();
+    clearScreen();
 	}
 	else
 	{
-		FILE * fp;
-		fp = fopen("eagleEmployees.dat", "rb");
-		while(!feof(fp))
-		{
-			fread(&eagleEmployees[numberOfEagleEmployees], sizeof(EAGLEEMPLOYEE), 1, fp);
-			numberOfEagleEmployees++;
-		}
-		fclose(fp);
+    FILE * fp;
+    fp = fopen("eagleEmployees.dat", "rb");
+    while(!feof(fp))
+    {
+        fread(&eagleEmployees[numberOfEagleEmployees], sizeof(EAGLEEMPLOYEE), 1, fp);
+        numberOfEagleEmployees++;
+    }
+    fclose(fp);
 	}
-
 }
 
 //Debugging option 5
@@ -529,21 +609,24 @@ void updateInfo()
 		system("pause");
 }
 
-void updatePricePerLitre()
-{
-	FILE *uPtr;
-	float price;
-	int i;
+//UODATED PRICE PER LITR MOVED UP
 
-	uPtr=fopen("Priceperlitre.txt","w");
-	puts("Enter price for 87 ,90,diesel:");
-	for(i=0;i<3;i++)
-	{
-		scanf("%f", &price);
-		fprintf(uPtr, "%f\n",price);
+
+//Print all purchases
+void printAllPurchaseReceipts()
+{
+	if(fopen("purchaseData.dat", "rb")){
+		PURCHASE temp;
+		FILE * fp;
+		fp = fopen("purchaseData.dat", "rb");
+		while (!feof(fp)) {
+			fread(&temp, sizeof(PURCHASE), 1, fp);
+			receipt(&temp);
+		}
 	}
-	fclose(uPtr);
 }
+
+
 
 void fullMenuFunctions(int menuOption)
 {
@@ -572,6 +655,8 @@ void fullMenuFunctions(int menuOption)
 			updateInfo();
 		case 8:
 			updatePricePerLitre();
+		case 9:
+			printAllPurchaseReceipts();
 	}
 }
 
@@ -632,7 +717,7 @@ void displayManagerMenu()
 	char * message = "Enter an option";
 	while (menuOption != 2)
 	{
-		char options[][32] = { "Pump Gas", "Save and Exit", "Search Information", "Register Company", "Print All Data", "Create New Eagle Employee", "Update Company/Customer Info", "Update Price Per Litre"};
+		char options[][32] = { "Pump Gas", "Save and Exit", "Search Information", "Register Company", "Print All Data", "Create New Eagle Employee", "Update Company/Customer Info", "Update Price Per Litre", "Print All Receipts"};
 		menuOption = displayArrowMenu(message, options, sizeof(options) / sizeof(options[0]));
 		clearScreen();
 		fullMenuFunctions(menuOption);
