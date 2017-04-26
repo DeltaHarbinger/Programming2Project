@@ -489,7 +489,7 @@ void updatePricePerLitre()
 	int i;
 
 	uPtr=fopen("Priceperlitre.txt","w");
-	puts("Enter price for 87 ,90,diesel:");
+	puts("Enter price for 87, 90, diesel:\n");
 	for(i=0;i<3;i++)
 	{
 		scanf("%f", &price);
@@ -623,10 +623,126 @@ void printAllPurchaseReceipts()
 			fread(&temp, sizeof(PURCHASE), 1, fp);
 			receipt(&temp);
 		}
+		fclose(fp);
 	}
 }
 
 
+
+void getCompanyTotals(float * companyTotals)
+{
+	PURCHASE temp;
+	FILE * fp;
+	fp = fopen("purchaseData.dat", "rb");
+	int x;
+	for (x = 0; x < numberOfCompanies; x++)
+		*(companyTotals + x) = 0.0;
+	while (!feof(fp))
+	{
+		fread(&temp, sizeof(PURCHASE), 1, fp);
+		*(companyTotals + ((temp.companyCode / 1000) - 1)) += temp.costOfSale;
+	}
+	companyTotals[(temp.companyCode / 1000) - 1] -= temp.costOfSale;
+	fclose(fp);
+}
+
+void printCompanyReport(float * companyTotals)
+{
+	int x;
+	system("cls");
+	printf("Company Code\tTotal Due\n\n");
+	for(x = 0; x < numberOfCompanies; x++)
+		printf("%i\t\t%.2f\n", (x + 1) * 1000, *(companyTotals + x));
+}
+
+void generateCompanyReport()
+{
+	float companyTotals[numberOfCompanies];
+	getCompanyTotals(companyTotals);
+	printCompanyReport(companyTotals);
+	system("pause");
+}
+
+void printReceiptsAndSumForGasType(char * option, int typeOfGas) {
+	FILE * fp;
+	fp = fopen("purchaseData.dat", "rb");
+	float sum = 0;
+	PURCHASE temp;
+	while(!feof(fp))
+	{
+		fread(&temp, sizeof(PURCHASE), 1, fp);
+		if(temp.gasType == typeOfGas)
+		{
+			receipt(&temp);
+			sum += temp.costOfSale;
+		}
+	}
+	if(temp.gasType == typeOfGas)
+		sum -= temp.gasType;
+	printf("\n\nTotal sales for %s petrol: $%.2f\n", option, sum);
+	fclose(fp);
+	system("pause");
+}
+
+void generateGasTypeReport()
+{
+	char options[][32] = {"87", "90", "Diesel"};
+	int typeOfGas = displayArrowMenu("Choose the type of gas to generate the report for", options, sizeof(options) / sizeof(options[0]));
+	printReceiptsAndSumForGasType(options[typeOfGas - 1], typeOfGas);
+}
+
+void printReceiptsAndSumForCustomer(int personalID)
+{
+	FILE * fp;
+	fp = fopen("purchaseData.dat", "r");
+	float sum = 0.0;
+	PURCHASE temp;
+	while (!feof(fp))
+	{
+		fread(&temp, sizeof(PURCHASE), 1, fp);
+		if(temp.customerIDNumber == personalID)
+		{
+			receipt(&temp);
+			sum += temp.costOfSale;
+		}
+	}
+	if(temp.customerIDNumber == personalID)
+		sum -= temp.costOfSale;
+	sum > 0.0 ? printf("\n\nTotal sales in petrol: $%.2f\n", sum) : printf("No valid sales records found\n");;
+	system("pause");
+}
+
+void generateCustomerPurchaseReport()
+{
+	puts("Enter the Customer's Personal ID number");
+	int personalID;
+	scanf("%i", &personalID);
+	printReceiptsAndSumForCustomer(personalID);
+}
+
+void displayMonthlyReport()
+{
+	if(fopen("purchaseData.dat", "rb")){
+		char options[][32] = {"Company Report", "Gas Type Report", "Client Report"};
+		int reportType = displayArrowMenu("Choose the type of report to be generated", options, sizeof(options) / sizeof(options[0]));
+		switch (reportType) {
+			case 1:
+				generateCompanyReport();
+				break;
+			case 2:
+				generateGasTypeReport();
+				break;
+			case 3:
+				generateCustomerPurchaseReport();
+				break;
+		}
+	}
+	else
+	{
+		printf("No purchases found\n");
+		system("pause");
+	}
+}
 
 void fullMenuFunctions(int menuOption)
 {
@@ -657,6 +773,11 @@ void fullMenuFunctions(int menuOption)
 			updatePricePerLitre();
 		case 9:
 			printAllPurchaseReceipts();
+			break;
+		case 10:
+			displayMonthlyReport();
+			break;
+
 	}
 }
 
@@ -717,7 +838,7 @@ void displayManagerMenu()
 	char * message = "Enter an option";
 	while (menuOption != 2)
 	{
-		char options[][32] = { "Pump Gas", "Save and Exit", "Search Information", "Register Company", "Print All Data", "Create New Eagle Employee", "Update Company/Customer Info", "Update Price Per Litre", "Print All Receipts"};
+		char options[][32] = { "Pump Gas", "Save and Exit", "Search Information", "Register Company", "Print All Data", "Create New Eagle Employee", "Update Company/Customer Info", "Update Price Per Litre", "Print All Receipts", "Generate Montly Report"};
 		menuOption = displayArrowMenu(message, options, sizeof(options) / sizeof(options[0]));
 		clearScreen();
 		fullMenuFunctions(menuOption);
