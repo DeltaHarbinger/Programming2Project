@@ -23,18 +23,18 @@ void clearScreen()
 
 void receipt(PURCHASE * temp)
 {
-    int i;
-    char types[3][32] = { "87", "90", "Diesel" };
-    char gas;
-    COMPANY tab;
-    clearScreen();
-		printf("Sale ID %i\n", (*temp).saleIDNumber);
-    printf("\n\t\t\t\tEAGLE ENERGY LTD\n");
-    printf("\n\t\tCompany ID\t  Litres\t  Cost($)\t  Gas Type\n\n\n");
-    printf("\n\t\t%d\t\t%.2f\t\t%.2f\t\t%s", (*temp).companyCode, (*temp).litresOfPetrol , (*temp).costOfSale, types[(*temp).gasType - 1]);
-    printf("\n\n\n\t\t\t\tThank you!");
-    printf("\n\t\t\t\tHave a Nice day\n");
-    getch();
+  int i;
+  char types[3][32] = { "87", "90", "Diesel" };
+  char gas;
+  COMPANY tab;
+  clearScreen();
+	printf("Sale ID: %i\t\tBranch: %i\t\tPump: %i\t\tEmployee Number: %i\n\nDate: %i\n\n", (*temp).saleIDNumber, (*temp).stationNumber, (*temp).pumpNumber, (*temp).employeeID, (*temp).eightDigitSaleDate);
+  printf("\n\t\t\t\tEAGLE ENERGY LTD\n");
+  printf("\n\t\tCompany ID\t  Litres\t  Cost($)\t  Gas Type\n\n\n");
+  printf("\n\t\t%d\t\t%.2f\t\t%.2f\t\t%s", (*temp).companyCode, (*temp).litresOfPetrol , (*temp).costOfSale, types[(*temp).gasType - 1]);
+  printf("\n\n\n\t\t\t\tThank you!");
+  printf("\n\t\t\t\tHave a Nice day\n");
+  getch();
 }
 
 //Option 1
@@ -73,6 +73,35 @@ int getSaleIDNumber()
 	return saleID;
 }
 
+bool dateValid(int day)
+{
+	FILE * fp;
+	fp = fopen("date.txt", "r");
+	int month, year;
+	fscanf(fp, "%i\n%i\n", &month, &year);
+	fclose(fp);
+	if(day > 0)
+	{
+		if(month == 2)
+		{
+			if(year % 4 == 0 && year % 100 != 0)
+				return day < 30;
+			else
+				return day < 29;
+		}
+		else
+		{
+			if(month == 4 || month ==  6 || month == 9 || month == 11)
+				return day < 31;
+			else
+				return day < 32;
+		}
+	}
+	else
+		return false;
+
+}
+
 void ppLitre(int line, PURCHASE * temp)
 {
   FILE *ptr;
@@ -92,6 +121,12 @@ void ppLitre(int line, PURCHASE * temp)
   system("pause");
   fclose(ptr);
 	(*temp).saleIDNumber = getSaleIDNumber();
+	int date;
+	do {
+		printf("Enter the day (1 - 31)");
+		scanf("%i", &date);
+	} while(!(dateValid(date)));
+	(*temp).eightDigitSaleDate = date * 1000000 + getDate();
 	receipt(temp);
 }
 
@@ -102,6 +137,14 @@ void purchase(PURCHASE * temp)
     char opts[][32] = {"  87","  90", "  Diesel"};
     //Used sizeof instead of constant '3'
     clearScreen();
+		do
+		{
+			printf("Enter the pump number (Any numer above zero)\n");
+			scanf(" %i", &(*temp).pumpNumber);
+			clearScreen();
+		} while((*temp).pumpNumber < 1);
+		(*temp).stationNumber = eagleEmployees[activeAccount].branchNumber;
+		(*temp).employeeID = eagleEmployees[activeAccount].eagleEmployeeNumber;
     ppLitre((*temp).gasType = displayArrowMenu("Select Gas Type:", opts, sizeof(opts) / sizeof(opts[0])), temp);
 }
 
@@ -250,20 +293,20 @@ bool idTaken(int iD)
 	return taken;
 }
 
-int getPersonalIDNumber()
+int getPersonalIDNumber(int companyCode)
 {
 	int personalID;
 	do
-		personalID = (numberOfCompanies + 1) * 10000 + rand() % 1000;
+		personalID = (companyCode + 1) * 10000 + rand() % 1000;
 	while(idTaken(personalID));
 	return personalID;
 }
 
-void storeCustomerInfo(EMPLOYEE * dest, EMPLOYEE source)
+void storeCustomerInfo(EMPLOYEE * dest, EMPLOYEE source, int companyNumber)
 {
 
 	*dest = source;
-	company[numberOfCompanies].numberOfCustomers++;
+	company[companyNumber].numberOfCustomers++;
 }
 
 void displayAllCustomerInfo(int companyCode)
@@ -318,13 +361,31 @@ void addEmployees()
 		getInfo("Enter Customer Name", tempEmployee.customerName);
 		tempEmployee.iDType = getIDType();
 		tempEmployee.customerIDNumber = (numberOfCompanies + 1) * 1000 + (*numEmployees + 1) * 10;
-		tempEmployee.personalIDNumber = getPersonalIDNumber();
+		tempEmployee.personalIDNumber = getPersonalIDNumber(numberOfCompanies);
 		tempEmployee.numberOfPurchases = 0;
-		checkCustomerInfo(tempEmployee) ? storeCustomerInfo(&company[numberOfCompanies].employees[*numEmployees], tempEmployee) : false;
+		checkCustomerInfo(tempEmployee) ? storeCustomerInfo(&company[numberOfCompanies].employees[*numEmployees], tempEmployee, numberOfCompanies) : false;
 		keepEntering = continueEnteringClients();
 	}
 }
 
+void appendEmployees(int companyCode)
+{
+	bool keepEntering = true;
+	int * numEmployees = &company[companyCode / 1000 - 1].numberOfCustomers;
+	while (keepEntering && company[companyCode / 1000 - 1].numberOfCustomers < 32)
+	{
+		clearScreen();
+		EMPLOYEE tempEmployee;
+
+		getInfo("Enter Customer Name", tempEmployee.customerName);
+		tempEmployee.iDType = getIDType();
+		tempEmployee.customerIDNumber = (companyCode / 1000 - 1 + 1) * 1000 + (*numEmployees + 1) * 10;
+		tempEmployee.personalIDNumber = getPersonalIDNumber(companyCode / 1000 - 1);
+		tempEmployee.numberOfPurchases = 0;
+		checkCustomerInfo(tempEmployee) ? storeCustomerInfo(&company[companyCode / 1000 - 1].employees[*numEmployees], tempEmployee, companyCode / 1000 - 1) : false;
+		keepEntering = continueEnteringClients();
+	}
+}
 
 //Option 3
 void addCompany()
@@ -333,31 +394,36 @@ void addCompany()
 	char tempCompanyInfo[4][32];
 	char companyInfoName[][32] = {"Company Name\n", "Company Contact Name\n", "Company Contact Email\n", "Company Contact Number\n"};
 	//Creates a 2D array to show later as a menu
-	while (isCorrect == 2 && reEnter == 1)
+	if(numberOfCompanies != 16)
 	{
-		//Gets company info
-		for(x = 0; x < 4; x++) getInfo(companyInfoName[x], tempCompanyInfo[x]);
-		isCorrect = checkInfo(companyInfoName, tempCompanyInfo, sizeof(companyInfoName) / sizeof(companyInfoName[x]));
-		if(isCorrect == 2)
-			reEnter = reEnterData();
-		else
+		while (isCorrect == 2 && reEnter == 1)
 		{
-			storeCompanyInfo(tempCompanyInfo);
-			company[numberOfCompanies].companyCode = (numberOfCompanies + 1) * 1000;
-			clearScreen();
-		}
+			//Gets company info
+			for(x = 0; x < 4; x++) getInfo(companyInfoName[x], tempCompanyInfo[x]);
+			isCorrect = checkInfo(companyInfoName, tempCompanyInfo, sizeof(companyInfoName) / sizeof(companyInfoName[x]));
+			if(isCorrect == 2)
+				reEnter = reEnterData();
+			else
+			{
+				storeCompanyInfo(tempCompanyInfo);
+				company[numberOfCompanies].companyCode = (numberOfCompanies + 1) * 1000;
+				clearScreen();
+			}
 
-	}
-	/////ADD EMPLOYEES
-	if(isCorrect == 1)
-	{
-		addEmployees();
-		if(company[numberOfCompanies].numberOfCustomers > 0)
+		}
+		/////ADD EMPLOYEES
+		if(isCorrect == 1)
 		{
-			displayRegisteredCustomers(company[numberOfCompanies].companyCode);
-			incramentNumberOfCompanies();
+			addEmployees();
+			if(company[numberOfCompanies].numberOfCustomers > 0)
+			{
+				displayRegisteredCustomers(company[numberOfCompanies].companyCode);
+				incramentNumberOfCompanies();
+			}
 		}
 	}
+	else
+		printf("Maximim number of companies reached");
 }
 
 //Option 4 (during exit)
@@ -434,6 +500,7 @@ void createEagleAccount(int jobType)
 	getInfo("Re-enter Employee Password", tempPassword);
 	printf("Enter Branch Number\n");
 	scanf("%i", &temp.branchNumber);
+	temp.eagleEmployeeNumber = numberOfEagleEmployees + 1;
 	if(strcmp(tempPassword, temp.eaglePassword) == 0)
 	{
 		if(confirmEagleAccount(temp))
@@ -480,6 +547,7 @@ void writeEagleEmployeeData()
 	int x;
 	for(x = 0; x < numberOfEagleEmployees; x++)
 		fwrite(&eagleEmployees[x], sizeof(EAGLEEMPLOYEE), 1, fp);
+	fclose(fp);
 }
 
 void updatePricePerLitre()
@@ -498,6 +566,42 @@ void updatePricePerLitre()
 	fclose(uPtr);
 }
 
+bool dateExists()
+{
+	return fopen("date.txt", "r");
+}
+
+void getInitialDate()
+{
+	int year, month;
+	do {
+		printf("Enter the current year\n");
+		scanf(" %i", &year);
+	} while(year < 1);
+	do {
+		printf("Enter the month ( 1 - 12 )\n");
+		scanf("%i", &month);
+	} while(month > 12 || month < 1);
+	FILE * fp;
+	fp = fopen("date.txt", "w");
+	fprintf(fp, "%i\n%i\n", month, year);
+	fclose(fp);
+}
+
+int getDate()
+{
+	if(!dateExists())
+	{
+		getInitialDate();
+	}
+	FILE * fp;
+	fp = fopen("date.txt", "r");
+	int month, year;
+	fscanf(fp, "%i\n%i\n", &month, &year);
+	return (month * 10000) + year;
+	fclose(fp);
+}
+
 void getEagleEmployeeData()
 {
 	if(!AccountExists())
@@ -505,11 +609,13 @@ void getEagleEmployeeData()
   	printf("No employee data has been created.\nAn administrator account will have to be created before the system is used.");
     Sleep(5000);
     while(numberOfEagleEmployees < 1)
-        createEagleAccount(MANAGER);
+      createEagleAccount(MANAGER);
     writeEagleEmployeeData();
     clearScreen();
     updatePricePerLitre();
     clearScreen();
+		getInitialDate();
+		clearScreen();
 	}
 	else
 	{
@@ -601,6 +707,7 @@ void updateInfo()
 		{
 			case 1:
 				updateCompanyInfo(updateQuerry);
+				break;
 			case 2:
 				updateCustomerInfo(updateQuerry);
 		}
@@ -626,7 +733,6 @@ void printAllPurchaseReceipts()
 		fclose(fp);
 	}
 }
-
 
 
 void getCompanyTotals(float * companyTotals)
@@ -710,6 +816,7 @@ void printReceiptsAndSumForCustomer(int personalID)
 		sum -= temp.costOfSale;
 	sum > 0.0 ? printf("\n\nTotal sales in petrol: $%.2f\n", sum) : printf("No valid sales records found\n");;
 	system("pause");
+	fclose(fp);
 }
 
 void generateCustomerPurchaseReport()
@@ -744,6 +851,61 @@ void displayMonthlyReport()
 	}
 }
 
+
+void endMonth()
+{
+	displayArrowMenu("Should a Company Report be generated before ending the month?", yesNoOptions, sizeof(yesNoOptions) / sizeof(yesNoOptions[0])) == 1 ? generateCompanyReport() : false;
+	int date = getDate();
+	 date = date / 10000 < 12 ? date + 10000 : date - 109999;
+	FILE * fp;
+	fp = fopen("date.txt", "w");
+	fprintf(fp, "%i\n%i\n", date / 10000, date % 10000);
+	fclose(fp);
+}
+
+void getCompanyToAppend()
+{
+	int companyCode;
+	clearScreen();
+	printf("Enter companyCode\n");
+	scanf(" %i", &companyCode);
+	if(companyCode / 1000 - 1 < numberOfCompanies && (companyCode / 1000) * 1000 == companyCode)
+		appendEmployees(companyCode);
+	else
+	{
+		printf("Company Code not valid\n");
+		system("pause");
+	}
+}
+
+void managerOptions()
+{
+	char options[][32] = {"Print all customer data", "Add new Eagle Account", "Update customer/company info", "Update gas prices", "Print all purchase receipts", "End Month", "Add new employees", "Exit"};
+	int choice = displayArrowMenu("Manager Menu\nChoose an option", options, sizeof(options) / sizeof(options[0]));
+	switch (choice) {
+		case 1:
+			printAllData();
+			break;
+		case 2:
+			createNewEagleAccount();
+			break;
+		case 3:
+			updateInfo();
+			break;
+		case 4:
+			updatePricePerLitre();
+			break;
+		case 5:
+			printAllPurchaseReceipts();
+			break;
+		case 6:
+			endMonth();
+			break;
+		case 7:
+			getCompanyToAppend();
+	}
+}
+
 void fullMenuFunctions(int menuOption)
 {
 	switch (menuOption)
@@ -759,23 +921,13 @@ void fullMenuFunctions(int menuOption)
 			searchInfo();
 			break;
 		case 4:
-			addCompany();
+			displayMonthlyReport();
 			break;
 		case 5:
-			printAllData();
+			addCompany();
 			break;
 		case 6:
-			createNewEagleAccount();
-			break;
-		case 7:
-			updateInfo();
-		case 8:
-			updatePricePerLitre();
-		case 9:
-			printAllPurchaseReceipts();
-			break;
-		case 10:
-			displayMonthlyReport();
+			managerOptions();
 			break;
 
 	}
@@ -835,10 +987,10 @@ bool login()
 void displayManagerMenu()
 {
 	int menuOption = 0;
-	char * message = "Enter an option";
+	char * message = "Choose an option";
 	while (menuOption != 2)
 	{
-		char options[][32] = { "Pump Gas", "Save and Exit", "Search Information", "Register Company", "Print All Data", "Create New Eagle Employee", "Update Company/Customer Info", "Update Price Per Litre", "Print All Receipts", "Generate Montly Report"};
+		char options[][32] = { "Pump Gas", "Save and Exit", "Search Information", "Generate Report", "Register Company", "Manager Options"};
 		menuOption = displayArrowMenu(message, options, sizeof(options) / sizeof(options[0]));
 		clearScreen();
 		fullMenuFunctions(menuOption);
@@ -848,10 +1000,10 @@ void displayManagerMenu()
 void displayCashierMenu()
 {
 	int menuOption = 1;
-	char * message = "Enter an option";
+	char * message = "Choose an option";
 	while (menuOption != 2)
 	{
-		char options[][32] = { "Pump Gas", "Save and Exit", "Search Information"};
+		char options[][32] = { "Pump Gas", "Save and Exit", "Search Information", "Generate Report"};
 		menuOption = displayArrowMenu(message, options, sizeof(options) / sizeof(options[0]));
 		clearScreen();
 		fullMenuFunctions(menuOption);
@@ -861,7 +1013,7 @@ void displayCashierMenu()
 void displayPumpAttendantMenu()
 {
 	int menuOption = 1;
-	char * message = "Enter an option";
+	char * message = "Choose an option";
 	while (menuOption != 2)
 	{
 		char options[][32] = { "Pump Gas", "Save and Exit", "Search Information"};
