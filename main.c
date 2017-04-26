@@ -861,6 +861,8 @@ void endMonth()
 	fp = fopen("date.txt", "w");
 	fprintf(fp, "%i\n%i\n", date / 10000, date % 10000);
 	fclose(fp);
+	fp = fopen("purchaseData.dat", "w");
+	fclose(fp);
 }
 
 void getCompanyToAppend()
