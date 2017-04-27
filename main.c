@@ -1,3 +1,9 @@
+/*
+	Programming 2 Project
+	Brandon Chung - 1603729
+	Phillip Newman - 1601451
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>
@@ -1040,10 +1046,22 @@ void displayEmployeeMenu()
 	}
 }
 
+void splashscreen()
+{
+	char chr=178,ch3=177,ch4=176,h=219;
+	int i;
+	clearScreen();
+	printf("\n\n\n\n\n\n\n\n\t\t\t%c%c%c%c%c%c%c%c EAGLE ENERGY %c%c%c%c%c%c%c%c\n\n",ch4,ch3,chr,h,h,chr,ch3,ch4,ch4,ch3,chr,h,h,chr,ch3,ch4);
+	//printf("\t\t\tLOADING.......................................\n" );
+	Sleep(2000);
+}
+
+
 void main()
 {
 	//Reads all data from file at startup
 	srand(time(NULL));
+	splashscreen();
 	getEagleEmployeeData();
 	fileRead();
 	if(login())
