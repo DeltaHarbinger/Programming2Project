@@ -8,7 +8,7 @@
 #include <time.h>
 #include <math.h>
 
-COMPANY company[16];
+COMPANY company[32];
 
 EAGLEEMPLOYEE eagleEmployees[32];
 int activeAccount;
@@ -38,7 +38,7 @@ void receipt(PURCHASE * temp)
 }
 
 //Option 1
-float gasMessage(PURCHASE * temp)
+float gasMessage()
 {
   float amt;
   bool confirm = false;
@@ -263,7 +263,6 @@ char getIDType()
 	//Tells user to enter the type of ID the customer is to use
 	puts("Enter type of ID\nD - Driver's License\tN - National ID\tP - Passport\t");
 	char id = toupper(_getch());
-	printf("%c\n", id);
 	//Ensures ID is 'D', 'N', or 'P'
 	while(!authenticateID(id))
 	{
@@ -394,7 +393,7 @@ void addCompany()
 	char tempCompanyInfo[4][32];
 	char companyInfoName[][32] = {"Company Name\n", "Company Contact Name\n", "Company Contact Email\n", "Company Contact Number\n"};
 	//Creates a 2D array to show later as a menu
-	if(numberOfCompanies != 16)
+	if(numberOfCompanies != 32)
 	{
 		while (isCorrect == 2 && reEnter == 1)
 		{
@@ -535,7 +534,7 @@ void searchInfo()
 	}
 }
 
-bool AccountExists()
+bool accountExists()
 {
 	return fopen("eagleEmployees.dat", "rb");
 }
@@ -604,7 +603,7 @@ int getDate()
 
 void getEagleEmployeeData()
 {
-	if(!AccountExists())
+	if(!accountExists())
   {
   	printf("No employee data has been created.\nAn administrator account will have to be created before the system is used.");
     Sleep(5000);
@@ -635,9 +634,7 @@ void printAllData()
 {
 	int x, y;
 	for(x = 0; x < numberOfCompanies; x++)
-	{
 		displayRegisteredCustomers(company[x].companyCode);
-	}
 }
 
 //Option 6, Creating New Account
